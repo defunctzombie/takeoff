@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>605</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="Viewer" name="viewer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpenProject"/>
+    <addaction name="actionSaveProject"/>
+   </widget>
+   <widget class="QMenu" name="menuProject">
+    <property name="title">
+     <string>Project</string>
+    </property>
+    <addaction name="actionAdd_Drawing"/>
+    <addaction name="actionAdd_Drawings"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuProject"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionZoom_In">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/zoom/zoom-in.png</normaloff>:/zoom/zoom-in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/zoom/zoom-out.png</normaloff>:/zoom/zoom-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionLine">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/tools/stock_draw-line.png</normaloff>:/tools/stock_draw-line.png</iconset>
+   </property>
+   <property name="text">
+    <string>Line</string>
+   </property>
+  </action>
+  <action name="actionArea">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/tools/stock_draw-polygon-45.png</normaloff>:/tools/stock_draw-polygon-45.png</iconset>
+   </property>
+   <property name="text">
+    <string>Area</string>
+   </property>
+  </action>
+  <action name="actionSelect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/tools/stock_draw-selection.png</normaloff>:/tools/stock_draw-selection.png</iconset>
+   </property>
+   <property name="text">
+    <string>Select</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/file/document-open.png</normaloff>:/file/document-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionOpenProject">
+   <property name="text">
+    <string>Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSaveProject">
+   <property name="text">
+    <string>Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionAdd_Drawing">
+   <property name="text">
+    <string>Add Drawing</string>
+   </property>
+  </action>
+  <action name="actionAdd_Drawings_2">
+   <property name="text">
+    <string>Add Drawings</string>
+   </property>
+  </action>
+  <action name="actionAdd_Drawings">
+   <property name="text">
+    <string>Add Drawings</string>
+   </property>
+  </action>
+  <action name="actionZoom_Fit">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/zoom/zoom-original.png</normaloff>:/zoom/zoom-original.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom Fit</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Fit</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Viewer</class>
+   <extends>QWidget</extends>
+   <header>Viewer.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="icons/icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

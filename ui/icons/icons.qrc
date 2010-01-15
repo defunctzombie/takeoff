@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="zoom">
+    <file>zoom-original.png</file>
+    <file>zoom-in.png</file>
+    <file>zoom-out.png</file>
+  </qresource>
+  <qresource prefix="file">
+    <file>document-open.png</file>
+  </qresource>
+  <qresource prefix="tools">
+    <file>stock_draw-line.png</file>
+    <file>stock_draw-polygon-45.png</file>
+    <file>stock_draw-selection.png</file>
+  </qresource>
+</RCC>
