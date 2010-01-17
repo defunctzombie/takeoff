@@ -1,41 +1,37 @@
 #include "Line.hpp"
 
 void Line::draw(QPainter& p, qreal scale) const
-{
-    QPen shapePen;
-    QColor line = color();
-    QColor dot = color();
-    
-    const int size = _points.size();
+{	
+	QVector<QPointF> points = _points;
     for (int i=0; i <_points.size(); ++i)
     {
-        QPointF p1 = _points[i] * scale;
-        
-        if (i != _points.size()-1)
-        {
-            QPointF p2 = _points[(i+1) % size] * scale;
-            
-            shapePen.setStyle(Qt::SolidLine);
-            
-            shapePen.setColor(line);
-            shapePen.setWidth(2);
-            p.setPen(shapePen);
-            p.drawLine(p1, p2);
-        }
-        
-        int size = 2;
-        p.setBrush(dot);
-        if (_selected)
-        {
-            size = 4;
-            shapePen.setWidth(2);
-            shapePen.setColor(Qt::yellow);
-            p.setPen(shapePen);
-        }
-        
-        p.drawEllipse(p1, size, size);
+        points[i] *= scale;
     }
-    
+	
+	QPen shapePen;
+	shapePen.setStyle(Qt::SolidLine);
+	shapePen.setColor(color());
+	shapePen.setWidth(2);
+	p.setPen(shapePen);
+	
+	p.drawPolyline(points.data(), points.size());
+	
+	shapePen.setWidth(4);
+	p.setPen(shapePen);
+	
+	p.drawPoints(points.data(), points.size());
+	
+	if (_selected)
+	{
+		QPen selectedPen;
+		selectedPen.setStyle(Qt::SolidLine);
+		selectedPen.setColor(Qt::green);
+		selectedPen.setWidth(6);
+		p.setPen(selectedPen);
+		
+		p.drawPoints(points.data(), points.size());
+	}
+		
     if (_sibling)
         _sibling->draw(p, scale);
 }
@@ -61,5 +57,8 @@ float Line::length() const
 
 float Line::area() const
 {
+	if (_sibling)
+        return _sibling->area();
+	
     return 0;
 }

@@ -12,11 +12,14 @@
 #include <QCheckBox>
 #include <QComboBox>
 
-MainWindow::MainWindow(QWidget* parent) :
+MainWindow::MainWindow(QString file, QWidget* parent) :
     QMainWindow(parent), _activePage(0)
 {
     _ui.setupUi(this);
     setupUi();
+	
+	if (!file.isNull())
+		openProject(file);
 }
 
 MainWindow::~MainWindow()
@@ -109,6 +112,10 @@ void MainWindow::toolAction(QAction* action)
         {
             _ui.viewer->changeTool(Viewer::AreaTool);
         }
+		else if (action == _ui.actionZoom_Window)
+		{
+			_ui.viewer->changeTool(Viewer::ZoomTool);
+		}
     }
 }
 
@@ -145,19 +152,19 @@ void MainWindow::on_actionAdd_Drawings_triggered()
         open(drawingDir.absoluteFilePath(files.at(i)));
 }
 
-#include <QDebug>
-void MainWindow::on_actionOpenProject_triggered()
+void MainWindow::openProject(QString& filename)
 {
-    //TODO reset properly
+	_openProject = filename;
+	_ui.viewer->reset();
+	
+	setWindowTitle("Takeoff - " + QFileInfo(filename).baseName());
+	
+	//TODO reset properly
     _pages.clear();
     _files.clear();
-    
-    QString filename = QFileDialog::getOpenFileName(this, "Open File", "", "*.tdf");
-    
-    if (filename.isNull())
-        return;
-        
+	
     QFile inFile(filename);
+	
     inFile.open(QIODevice::ReadOnly);
     QDataStream in(&inFile);
     
@@ -204,18 +211,37 @@ void MainWindow::on_actionOpenProject_triggered()
             pageIndex++;
         }
     }
-        
+	
     _drawingsCombo->setCurrentIndex(0);
     openPage(0);
     _ui.viewer->update();
 }
 
-void MainWindow::on_actionSaveProject_triggered()
+void MainWindow::on_actionOpenProject_triggered()
 {
-    QString filename = QFileDialog::getSaveFileName(this, "Save File", "", "*.tdf");
+    QString filename = QFileDialog::getOpenFileName(this, "Open File", "", "*.tdf");
     
     if (filename.isNull())
         return;
+	
+	openProject(filename);
+}
+
+void MainWindow::on_actionSaveProject_triggered()
+{
+	QString filename = _openProject;
+	if (filename.isNull())
+	{
+		filename = QFileDialog::getSaveFileName(this, "Save File", "", "*.tdf");
+	}
+    
+    if (filename.isNull())
+        return;
+	
+	if (!filename.endsWith(".tdf"))
+	{
+		filename.append(".tdf");
+	}
     
     QFile outFile(filename);
     outFile.open(QIODevice::WriteOnly);
@@ -242,9 +268,8 @@ void MainWindow::setupUi()
     /// setup toolbars ///
     QToolBar* _mainToolBar = new QToolBar("Main", this);
     
-    _mainToolBar->addAction(_ui.actionOpen);
-    
-    _mainToolBar->addSeparator();
+    //_mainToolBar->addAction(_ui.actionOpen);
+    //_mainToolBar->addSeparator();
     
     /// zoom
     _mainToolBar->addAction(_ui.actionZoom_In);
@@ -256,11 +281,13 @@ void MainWindow::setupUi()
     _mainToolBar->addSeparator();
     
     /// tools
+	_mainToolBar->addAction(_ui.actionZoom_Window);
     _mainToolBar->addAction(_ui.actionSelect);
     _mainToolBar->addAction(_ui.actionArea);
     _mainToolBar->addAction(_ui.actionLine);
     
     QActionGroup* toolsGroup = new QActionGroup(_mainToolBar);
+	toolsGroup->addAction(_ui.actionZoom_Window);
     toolsGroup->addAction(_ui.actionSelect);
     toolsGroup->addAction(_ui.actionArea);
     toolsGroup->addAction(_ui.actionLine);
@@ -322,5 +349,5 @@ void MainWindow::setupUi()
     
     this->addToolBar(_mainToolBar);
     this->addToolBar(_scaleToolBar);
-    this->addToolBar(Qt::BottomToolBarArea, _infoToolBar);
+    this->addToolBar(_infoToolBar);
 }

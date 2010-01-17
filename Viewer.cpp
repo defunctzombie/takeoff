@@ -15,7 +15,7 @@
 #include "shapes/Line.hpp"
 
 Viewer::Viewer(QWidget* parent) :
-    QWidget(parent), _thread(this)
+    QGLWidget(parent), _thread(this)
 {
     _page = 0;
     _shape = 0;
@@ -24,6 +24,7 @@ Viewer::Viewer(QWidget* parent) :
     _removalNodeIndex = 0;
     _removalShape = 0;
     _dragPoint = 0;
+	_mouseDown = false;
     
     this->setBackgroundRole(QPalette::Mid);
     this->setCursor(Qt::CrossCursor);
@@ -68,8 +69,8 @@ void Viewer::setPage(Page* page)
     if (_page == 0)
         return;
     
-    _pageImage = QImage();
-    _thread.start();
+	_pageImage = QImage();
+	zoomFit();
 }
 
 void Viewer::paintEvent(QPaintEvent* pe)
@@ -78,13 +79,13 @@ void Viewer::paintEvent(QPaintEvent* pe)
         return;
     
     QPainter p(this);
+	p.setRenderHint(QPainter::Antialiasing);
     
     QPainterPath path;
     path.addRoundedRect(2, 2, width()-4, height()-4, 3, 3);
     p.setClipPath(path);
     
     p.translate(_offset);
-    p.setRenderHint(QPainter::Antialiasing);
     
     QSizeF pageSize = _page->ppage->pageSizeF();
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
@@ -97,18 +98,14 @@ void Viewer::paintEvent(QPaintEvent* pe)
     p.drawImage(target, _pageImage, _pageImage.rect());
     
     QPen shapePen;
-    QPen textPen;
-    
-    textPen.setWidth(2);
 
     Q_FOREACH(const Shape* shape, _page->shapes)
-    {   
+    {
         shape->draw(p, _page->dpi);
     }
     
     const float scale = _page->scale;
     
-    p.setPen(textPen);
     float area = 0;
     float length = 0;
     Q_FOREACH(const Shape* shape, _selected)
@@ -116,12 +113,27 @@ void Viewer::paintEvent(QPaintEvent* pe)
         area += scale * scale * shape->area();
         length += scale * shape->length();
     }
-    
     infoChanged(length, area);
     
     p.setClipping(false);
     
     p.translate(-_offset);
+	
+	if (_tool == ZoomTool && _mouseDown)
+	{
+		QPen pen;
+		pen.setWidth(2);
+		pen.setColor(Qt::green);
+		
+		QColor c(Qt::green);
+		c.setAlphaF(.3);
+		
+		p.setPen(pen);
+		QRect zoomRect = QRect(_dragStart, _mousePoint);
+		p.drawRect(zoomRect);
+		
+		p.fillRect(zoomRect, c);
+	}
     
     QStyleOptionFrame frameStyle;
     frameStyle.initFrom(this);
@@ -132,7 +144,6 @@ void Viewer::paintEvent(QPaintEvent* pe)
 
 void Viewer::mouseMoveEvent(QMouseEvent* me)
 {
-
     if (_panning)
     {
         _offset += me->pos() - _dragStart;
@@ -148,6 +159,12 @@ void Viewer::mouseMoveEvent(QMouseEvent* me)
         _dragPoint->setY(d.y()/(float)_page->dpi);
         repaint();
     }
+	
+	if (_tool == ZoomTool && _mouseDown)
+	{
+		_mousePoint = me->pos();
+		repaint();
+	}
 }
 
 void Viewer::mousePressEvent(QMouseEvent* me)
@@ -181,6 +198,7 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                 QPointF* drag = shape->selected(me->pos()-_offset, _page->dpi);
                 if (drag)
                 {
+					_shape = shape;
                     shape->setSelected(true);
                     _selected.append(shape);
                     _dragPoint = drag;
@@ -230,6 +248,11 @@ void Viewer::mousePressEvent(QMouseEvent* me)
             _shape->addPoint(p);
             repaint();
         }
+		else if (_tool == ZoomTool)
+		{
+			_mouseDown = true;
+			_dragStart = me->pos();
+		}
     }
 }
 
@@ -258,6 +281,21 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
             }
         }
     }
+	else if (_tool == ZoomTool && _mouseDown)
+	{
+		QPoint delta = _mousePoint - _dragStart;
+		int dx = qAbs(delta.x());
+		int dy = qAbs(delta.y());
+		_page->dpi *= _pageImage.width()/dx;
+		
+		QPoint loc = _dragStart - _offset;
+		_offset -= loc * _pageImage.width()/dx;
+		
+		repaint();
+		_thread.start();
+	}
+	
+    _mouseDown = false;
 }
 
 void Viewer::mouseDoubleClickEvent(QMouseEvent* me)
@@ -381,6 +419,12 @@ void Viewer::group(bool b)
 void Viewer::changeColor(QColor c)
 {
     _color = c;
+	
+	if (_shape)
+	{
+		_shape->color(_color);
+		repaint();
+	}
 }
 
 void Viewer::changeColor()
@@ -405,7 +449,8 @@ void Viewer::ImageThread::run()
     if (_viewer->_page->ppage->orientation() == Poppler::Page::Portrait)
         rotate = Poppler::Page::Rotate90;
     
-    QImage newImage = _viewer->_page->ppage->renderToImage(_viewer->_page->dpi, _viewer->_page->dpi,
+	const int dpi = _viewer->_page->dpi;
+    QImage newImage = _viewer->_page->ppage->renderToImage(dpi, dpi,
                                                            -1, -1, -1, -1, rotate);
     if (newImage.isNull())
     {

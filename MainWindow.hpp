@@ -40,9 +40,11 @@ class MainWindow : public QMainWindow
         QComboBox* _drawingsCombo;
         
         QLabel* _infoLabel;
+	
+		QString _openProject;
         
     public:
-        MainWindow(QWidget* parent = 0);
+        MainWindow(QString file, QWidget* parent = 0);
         ~MainWindow();
         
         //open a document for viewing
@@ -65,4 +67,6 @@ class MainWindow : public QMainWindow
         
     protected:    
         void setupUi();
+	
+		void openProject(QString& file);
 };

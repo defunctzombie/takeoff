@@ -2,14 +2,15 @@
 
 void Area::draw(QPainter& p, qreal scale) const
 {
-    QPen shapePen;
-    QColor line = color();
-    QColor dot = color();
-    
     QPolygonF poly;
     
-    const int size = _points.size();
-    for (int i=0; i <_points.size(); ++i)
+	QPen shapePen;
+	shapePen.setColor(color());
+	shapePen.setWidth(2);
+	p.setPen(shapePen);
+	
+	const int size = _points.size();
+    for (int i=0; i < size; ++i)
     {   
         QPointF p1 = _points[i] * scale;
         QPointF p2 = _points[(i+1) % size] * scale;
@@ -21,31 +22,29 @@ void Area::draw(QPainter& p, qreal scale) const
         else
             shapePen.setStyle(Qt::SolidLine);
         
-        shapePen.setColor(line);
-        shapePen.setWidth(2);
-        p.setPen(shapePen);
+		p.setPen(shapePen);
         p.drawLine(p1, p2);
-        
-        int size = 2;
-        p.setPen(Qt::NoPen);
-        p.setBrush(dot);
-        if (_selected)
-        {
-            size = 4;
-            shapePen.setWidth(2);
-            shapePen.setColor(Qt::yellow);
-            p.setPen(shapePen);
-        }
-        
-        p.drawEllipse(p1, size, size);
     }
+	
+	shapePen.setWidth(4);
+	p.setPen(shapePen);
+	
+	p.drawPoints(poly.data(), poly.size());
+	
+	if (_selected)
+	{
+		shapePen.setColor(Qt::green);
+		shapePen.setWidth(6);
+		p.setPen(shapePen);
+		p.drawPoints(poly.data(), poly.size());
+	}
     
     QColor fill = color();
     fill.setAlphaF(.2);
-    
-    p.setPen(Qt::NoPen);
-    p.setBrush(fill);
-    p.drawPolygon(poly);
+	
+	QPainterPath pp;
+	pp.addPolygon(poly);
+    p.fillPath(pp, fill);
     
     if (_sibling)
         _sibling->draw(p, scale);
@@ -83,7 +82,7 @@ float Area::area() const
     
     float area = 0;
     if (_sibling)
-        area += _sibling->length();
+        area += _sibling->area();
     
     if (_points.size() < 3)
         return 0;

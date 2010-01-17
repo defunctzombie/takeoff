@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QWidget>
+#include <QGLWidget>
 #include <QThread>
 #include <QMutex>
 #include <QVector>
@@ -11,7 +11,7 @@
 
 class Page;
 
-class Viewer : public QWidget
+class Viewer : public QGLWidget
 {
     Q_OBJECT
     
@@ -28,6 +28,7 @@ class Viewer : public QWidget
         typedef enum
         {
             SelectTool,
+			ZoomTool,
             LineTool,
             AreaTool
         } Tool;
@@ -55,6 +56,7 @@ class Viewer : public QWidget
         
         //true if we are panning around the drawing
         bool _panning;
+	    bool _mouseDown;
         
         QMenu* _popupMenu;
         //remove a point
@@ -68,6 +70,7 @@ class Viewer : public QWidget
         
         //point we can drag
         QPointF* _dragPoint;
+		QPoint _mousePoint;
         
         QColor _color;
         

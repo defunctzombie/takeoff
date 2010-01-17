@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 2.6)
 
 set(target takeoff)
 
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(POPPLER REQUIRED poppler-qt4)
+include_directories(${POPPLER_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${POPPLER_LIBRARIES})
+
 set (SRCS
     main.cpp
     MainWindow.cpp
@@ -15,24 +22,15 @@ set (SRCS
     shapes/Line.cpp
 )
 
-#set (QT_USE_QTOPENGL true)
+set (QT_USE_QTOPENGL true)
 #set (QT_USE_QTXML true)
 find_package ( Qt4 REQUIRED )
 include ( ${QT_USE_FILE} )
+set(LIBS ${LIBS} ${QT_LIBRARIES})
 
 #needed for moc usage and includes
 include_directories(${PROJECT_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
-
-if (WIN32)
-	#http://www.gtk.org/download.html
-	#add_definitions("-Wl,-subsystem,window")
-	add_definitions(-mwindows)
-	set( poppler_base "E:/Roman/poppler-0.10.4")
-	include_directories(${poppler_base}/qt4/src)
-else ()
-	include_directories("/usr/include/poppler/qt4")
-endif ()
 
 qt4_wrap_cpp ( MOC_SRCS
     Viewer.hpp
@@ -49,4 +47,4 @@ qt4_add_resources (QRC_FILES
 )
 
 add_executable(${target} ${SRCS} ${MOC_SRCS} ${QRC_FILES} ${UI_FILES})
-target_link_libraries(${target} ${QT_LIBRARIES} poppler-qt4)
+target_link_libraries(${target} ${LIBS})

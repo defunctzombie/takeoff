@@ -6,7 +6,8 @@
 ColorSwatch::ColorSwatch(QWidget* parent) :
     QWidget(parent), _color(Qt::red)
 {
-    setFixedWidth(25);
+    setFixedSize(25, 25);
+	setToolTip("Change Color");
 }
 
 void ColorSwatch::paintEvent(QPaintEvent*)

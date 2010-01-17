@@ -1,10 +1,12 @@
 <RCC>
   <qresource prefix="zoom">
+    <file>zoom-fit-best.png</file>
     <file>zoom-original.png</file>
     <file>zoom-in.png</file>
     <file>zoom-out.png</file>
   </qresource>
   <qresource prefix="file">
+    <file>app.svg</file>
     <file>document-open.png</file>
   </qresource>
   <qresource prefix="tools">
