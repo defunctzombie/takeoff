@@ -46,9 +46,8 @@ class MainWindow : public QMainWindow
     public:
         MainWindow(QString file, QWidget* parent = 0);
         ~MainWindow();
-        
-        //open a document for viewing
-        void open(const QString& filename);
+	
+		void openProject(const QString& file);
         
     private Q_SLOTS:
         void scaleChanged(const QString& text);
@@ -68,5 +67,6 @@ class MainWindow : public QMainWindow
     protected:    
         void setupUi();
 	
-		void openProject(QString& file);
+		//open a document for viewing
+		void open(const QString& filename);
 };

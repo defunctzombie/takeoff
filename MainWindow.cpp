@@ -152,9 +152,7 @@ void MainWindow::on_actionAdd_Drawings_triggered()
         open(drawingDir.absoluteFilePath(files.at(i)));
 }
 
-#include <QDebug>
-
-void MainWindow::openProject(QString& filename)
+void MainWindow::openProject(const QString& filename)
 {
 	_openProject = filename;
 	_ui.viewer->reset();
