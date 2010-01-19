@@ -42,7 +42,7 @@ class Shape
         void setFinished(bool f) { _finished = f; }
         bool isFinished() { return _finished; }
         
-        void color(QColor& color);
+        void color(const QColor& color);
         QColor color() const { return _color; }
         
         virtual const char* name() const = 0;

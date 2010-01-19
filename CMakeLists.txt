@@ -23,7 +23,8 @@ set (SRCS
 )
 
 set (QT_USE_QTOPENGL true)
-#set (QT_USE_QTXML true)
+set (QT_USE_QTXML true)
+
 find_package ( Qt4 REQUIRED )
 include ( ${QT_USE_FILE} )
 set(LIBS ${LIBS} ${QT_LIBRARIES})

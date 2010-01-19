@@ -152,6 +152,8 @@ void MainWindow::on_actionAdd_Drawings_triggered()
         open(drawingDir.absoluteFilePath(files.at(i)));
 }
 
+#include <QDebug>
+
 void MainWindow::openProject(QString& filename)
 {
 	_openProject = filename;
@@ -162,10 +164,44 @@ void MainWindow::openProject(QString& filename)
 	//TODO reset properly
     _pages.clear();
     _files.clear();
+    
+    _drawingsCombo->clear();
 	
     QFile inFile(filename);
 	
     inFile.open(QIODevice::ReadOnly);
+#if 1
+    QDomDocument doc;
+    doc.setContent(&inFile);
+    
+    inFile.close();
+    
+    QDomElement takeoff = doc.documentElement();
+    
+    QDomNodeList documentsList = takeoff.elementsByTagName("documents");
+    if (documentsList.count() != 1)
+        return;
+    
+    QDomNodeList documents =documentsList.item(0).toElement().elementsByTagName("document");
+    for (int i=0 ; i<documents.count() ; ++i)
+    {
+        QDomElement document = documents.item(i).toElement();
+        _files.append(document.attribute("ref"));
+    }
+    
+    QDomNodeList pagesList = takeoff.elementsByTagName("pages");
+    if (pagesList.count() != 1)
+        return;
+    
+    QDomNodeList pages = pagesList.item(0).toElement().elementsByTagName("page");
+    for (int i=0 ; i<pages.count() ; ++i)
+    {
+        Page p;
+        p.read(pages.item(i).toElement());
+        _pages.append(p);
+    }
+    
+#else
     QDataStream in(&inFile);
     
     in >> _files;
@@ -173,6 +209,7 @@ void MainWindow::openProject(QString& filename)
     
     inFile.close();
     
+#endif
     _ui.viewer->reset();
     
     int pageIndex = 0;
@@ -242,8 +279,43 @@ void MainWindow::on_actionSaveProject_triggered()
 	{
 		filename.append(".tdf");
 	}
+	
+	_openProject = filename;
     
-    QFile outFile(filename);
+#if 1
+    QDomDocument doc;
+    
+    QDomElement takeoff = doc.createElement("takeoff");
+    takeoff.setAttribute("version", "1.0");
+    doc.appendChild(takeoff);
+    
+    QDomElement documents = doc.createElement("documents");
+    takeoff.appendChild(documents);
+    
+    Q_FOREACH (const QString& s, _files)
+    {
+        QDomElement document = doc.createElement("document");
+        document.setAttribute("ref", s);
+        documents.appendChild(document);
+    }
+    
+    QDomElement pages = doc.createElement("pages");
+    takeoff.appendChild(pages);
+    
+    Q_FOREACH (const Page& p, _pages)
+    {
+        p.write(pages);
+    }
+    
+    QFile file(_openProject);
+    if (!file.open(QIODevice::WriteOnly))
+        return;
+    
+    file.write(doc.toByteArray(4));
+    file.close();
+    
+#else
+    QFile outFile(_openProject);
     outFile.open(QIODevice::WriteOnly);
     QDataStream out(&outFile);
     
@@ -251,6 +323,7 @@ void MainWindow::on_actionSaveProject_triggered()
     out << _pages;
     
     outFile.close();
+#endif
 }
 
 void MainWindow::infoChanged(float length, float area)

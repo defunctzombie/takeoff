@@ -17,7 +17,7 @@ void Shape::linkShape(Shape* s)
     color(_color);
 }
 
-void Shape::color(QColor& color)
+void Shape::color(const QColor& color)
 {
     _color = color;
     if (_sibling)
