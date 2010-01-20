@@ -9,7 +9,7 @@ MainWindow* mw;
 class TakeoffApplication : public QApplication
 {
 	public:
-		TakeoffApplication(int argc, char* argv[]) :
+		TakeoffApplication(int& argc, char** argv) :
             QApplication(argc, argv) {}
 	
 	protected:

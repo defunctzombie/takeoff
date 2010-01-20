@@ -13,6 +13,7 @@
 
 #include "Page.hpp"
 #include "ColorSwatch.hpp"
+#include "Scale.hpp"
 
 class QComboBox;
 class QLabel;
@@ -38,11 +39,13 @@ class MainWindow : public QMainWindow
         QLineEdit* _scale;
         ColorSwatch* _colorSwatch;
         QComboBox* _drawingsCombo;
-        //QComboBox* _scalesCombo;
+        QComboBox* _scalesCombo;
         
         QLabel* _infoLabel;
 	
 		QString _openProject;
+        
+        QVector<Scale> _scales;
         
     public:
         MainWindow(QString file, QWidget* parent = 0);
@@ -52,6 +55,7 @@ class MainWindow : public QMainWindow
         
     private Q_SLOTS:
         void scaleChanged(const QString& text);
+        void scaleSelected(int index);
         void openPage(int index);
         
         void infoChanged(float length, float area);

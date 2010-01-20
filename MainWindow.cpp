@@ -12,26 +12,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 
-#if 0
-class Scale
-{
-    public:
-        Scale(float drawing = 1, float actual = 1) :
-            _drawing(drawing), _actual(_actual)
-        {
-        }
-        
-        QString toString() const
-        {
-            return "TODO";
-        }
-        
-    private:
-        float _drawing;
-        float _actual;
-};
-#endif
-
 MainWindow::MainWindow(QString file, QWidget* parent) :
     QMainWindow(parent), _activePage(0)
 {
@@ -39,39 +19,35 @@ MainWindow::MainWindow(QString file, QWidget* parent) :
     setupUi();
     
     //scales
-    /*
-    QVector<Scale> scales;
     
-    scales.append(Scale(1/32.0, 1));
-    scales.append(Scale(1/16.0, 1));
-    scales.append(Scale(3/32.0, 1));
-    scales.append(Scale(1/8.0, 1));
-    scales.append(Scale(3/16.0, 1));
-    scales.append(Scale(1/4.0, 1));
-    scales.append(Scale(3/8.0, 1));
-    scales.append(Scale(1/2.0, 1));
-    scales.append(Scale(3/4.0, 1));
-    scales.append(Scale(1, 1));
-    scales.append(Scale(1.5, 1));
-    scales.append(Scale(3, 1));
-    scales.append(Scale(1, 10));
-    scales.append(Scale(1, 20));
-    scales.append(Scale(1, 30));
-    scales.append(Scale(1, 40));
-    scales.append(Scale(1, 50));
-    scales.append(Scale(1, 60));
-    scales.append(Scale(1, 70));
-    scales.append(Scale(1, 80));
-    scales.append(Scale(1, 90));
-    scales.append(Scale(1, 100));
-    */
-    //_scalesCombo = new QComboBox(this);
-    /*
-    Q_FOREACH(const Scale& s, scales)
+    _scales.append(Scale(1/32.0, 1));
+    _scales.append(Scale(1/16.0, 1));
+    _scales.append(Scale(3/32.0, 1));
+    _scales.append(Scale(1/8.0, 1));
+    _scales.append(Scale(3/16.0, 1));
+    _scales.append(Scale(1/4.0, 1));
+    _scales.append(Scale(3/8.0, 1));
+    _scales.append(Scale(1/2.0, 1));
+    _scales.append(Scale(3/4.0, 1));
+    _scales.append(Scale(1, 1));
+    _scales.append(Scale(1.5, 1));
+    _scales.append(Scale(3, 1));
+    _scales.append(Scale(1, 10));
+    _scales.append(Scale(1, 20));
+    _scales.append(Scale(1, 30));
+    _scales.append(Scale(1, 40));
+    _scales.append(Scale(1, 50));
+    _scales.append(Scale(1, 60));
+    _scales.append(Scale(1, 70));
+    _scales.append(Scale(1, 80));
+    _scales.append(Scale(1, 90));
+    _scales.append(Scale(1, 100));
+    //scales.append(Scale(0, 0));
+    
+    Q_FOREACH(const Scale& s, _scales)
     {
         _scalesCombo->addItem(s.toString());
     }
-    */
     
     if (!file.isNull())
         openProject(file);
@@ -140,6 +116,11 @@ void MainWindow::openPage(int index)
     //send the page to the viewer
     _ui.viewer->setPage(_activePage);
     _scale->setText(QString::number(_activePage->scale));
+}
+
+void MainWindow::scaleSelected(int index)
+{
+    _scale->setText(QString::number(_scales[index].scale(), 'f', 2));
 }
 
 void MainWindow::scaleChanged(const QString& text)
@@ -435,13 +416,15 @@ void MainWindow::setupUi()
     /// scale
     QToolBar* _scaleToolBar = new QToolBar("Scale", this);
     
-    //_scaleToolBar->addWidget(_scalesCombo);
+    _scalesCombo = new QComboBox(_scaleToolBar);
+    _scaleToolBar->addWidget(_scalesCombo);
     
     _scaleToolBar->addWidget(new QLabel("Scale: 1\" = ", _scaleToolBar));
     _scale = new QLineEdit(_scaleToolBar);
     _scaleToolBar->addWidget(_scale);
     _scale->setMaximumWidth(50);
     
+    connect(_scalesCombo, SIGNAL(currentIndexChanged(int)), SLOT(scaleSelected(int)));
     connect(_scale, SIGNAL(textChanged(QString)), SLOT(scaleChanged(QString)));
     
     //TODO read from ... something

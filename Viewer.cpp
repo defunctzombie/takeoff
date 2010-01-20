@@ -76,7 +76,10 @@ void Viewer::setPage(Page* page)
 void Viewer::paintEvent(QPaintEvent* pe)
 {
     if (!_page)
+    {
+        QPainter p(this);
         return;
+    }
     
     QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);
