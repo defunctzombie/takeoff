@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QFileOpenEvent>
+#include <QDebug>
 
 #include "MainWindow.hpp"
 
@@ -9,7 +10,7 @@ class TakeoffApplication : public QApplication
 {
 	public:
 		TakeoffApplication(int argc, char* argv[]) :
-		QApplication(argc, argv) {}
+            QApplication(argc, argv) {}
 	
 	protected:
 		bool event(QEvent *);
@@ -48,7 +49,7 @@ int main(int argc, char* argv[])
     }
     
     int ret = app.exec();
-	
+    
 	delete mw;
 	
 	return ret;

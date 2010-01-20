@@ -38,6 +38,7 @@ class MainWindow : public QMainWindow
         QLineEdit* _scale;
         ColorSwatch* _colorSwatch;
         QComboBox* _drawingsCombo;
+        //QComboBox* _scalesCombo;
         
         QLabel* _infoLabel;
 	
