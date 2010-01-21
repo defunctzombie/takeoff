@@ -15,7 +15,7 @@
 #include "shapes/Line.hpp"
 
 Viewer::Viewer(QWidget* parent) :
-    QGLWidget(parent), _thread(this)
+    QWidget(parent), _thread(this)
 {
     _page = 0;
     _shape = 0;
@@ -42,10 +42,7 @@ Viewer::Viewer(QWidget* parent) :
 
 Viewer::~Viewer()
 {
-    _thread.terminate();
     _thread.wait();
-    
-    _page = 0;
 }
 
 void Viewer::reset()
@@ -73,6 +70,8 @@ void Viewer::setPage(Page* page)
 	zoomFit();
 }
 
+#include <QDebug>
+
 void Viewer::paintEvent(QPaintEvent* pe)
 {
     if (!_page)
@@ -97,9 +96,11 @@ void Viewer::paintEvent(QPaintEvent* pe)
         imageSize.transpose();
     
     QRectF target(0,0, imageSize.width(), imageSize.height());
-    
+	
+	_imageMutex.lock();
     p.drawImage(target, _pageImage, _pageImage.rect());
-    
+	_imageMutex.unlock();
+	
     QPen shapePen;
 
     Q_FOREACH(const Shape* shape, _page->shapes)
@@ -261,7 +262,6 @@ void Viewer::mousePressEvent(QMouseEvent* me)
 
 void Viewer::mouseReleaseEvent(QMouseEvent* me)
 {
-    _panning = false;
     _dragPoint = 0;
     
     if (!_page)
@@ -284,6 +284,10 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
             }
         }
     }
+	else if (me->button() == Qt::MidButton && _panning)
+	{
+		//regenImage();
+	}
 	else if (_tool == ZoomTool && _mouseDown)
 	{
 		QPoint delta = _mousePoint - _dragStart;
@@ -295,9 +299,10 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
 		_offset -= loc * _pageImage.width()/dx;
 		
 		repaint();
-		_thread.start();
+		regenImage();
 	}
 	
+	_panning = false;
     _mouseDown = false;
 }
 
@@ -336,8 +341,9 @@ void Viewer::zoomFit()
     
     _offset = QPoint((width() - imageSize.width())/2, 
                      (height() - imageSize.height())/2);
+	
     repaint();
-    _thread.start();
+    regenImage();
 }
 
 void Viewer::zoomIn()
@@ -345,9 +351,13 @@ void Viewer::zoomIn()
     if (!_page)
         return;
     
+	const int oldDpi = _page->dpi;
     _page->dpi += int(_page->dpi * .5);
+	
+	_offset *= _page->dpi/(float)oldDpi;
+	
     repaint();
-    _thread.start();
+    regenImage();
 }
 
 void Viewer::zoomOut()
@@ -355,9 +365,13 @@ void Viewer::zoomOut()
     if (!_page)
         return;
     
+	const int oldDpi = _page->dpi;
     _page->dpi -= int(_page->dpi * .5);
+	
+	_offset *= _page->dpi/(float)oldDpi;
+	
     repaint();
-    _thread.start();
+    regenImage();
 }
 
 void Viewer::setScale(float scale)
@@ -367,6 +381,11 @@ void Viewer::setScale(float scale)
     
     _page->scale = scale;
     update();
+}
+
+void Viewer::regenImage()
+{
+	_thread.start();
 }
 
 void Viewer::changeTool(Viewer::Tool t)
@@ -451,8 +470,12 @@ void Viewer::ImageThread::run()
     Poppler::Page::Rotation rotate = Poppler::Page::Rotate0;
     if (_viewer->_page->ppage->orientation() == Poppler::Page::Portrait)
         rotate = Poppler::Page::Rotate90;
-    
+	
 	const int dpi = _viewer->_page->dpi;
+	
+	if (dpi > 250)
+		return;
+	
     QImage newImage = _viewer->_page->ppage->renderToImage(dpi, dpi,
                                                            -1, -1, -1, -1, rotate);
     if (newImage.isNull())
@@ -460,7 +483,7 @@ void Viewer::ImageThread::run()
         // ... error message ...
         return;
     }
-    
+	
     _viewer->_imageMutex.lock();
     //shallow copy
     _viewer->_pageImage = QImage(newImage);

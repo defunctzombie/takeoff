@@ -32,14 +32,8 @@ bool TakeoffApplication::event(QEvent *event)
 int main(int argc, char* argv[])
 {
     TakeoffApplication app(argc, argv);
-    
-	QString file;
-	if (argc > 1)
-	{
-		file = QString(argv[1]);
-	}
 	
-    mw = new MainWindow(file);
+    mw = new MainWindow();
     mw->setMinimumSize(500,500);
     mw->showMaximized();
     

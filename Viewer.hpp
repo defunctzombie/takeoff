@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QGLWidget>
+#include <QWidget>
 #include <QThread>
 #include <QMutex>
 #include <QVector>
@@ -11,7 +11,7 @@
 
 class Page;
 
-class Viewer : public QGLWidget
+class Viewer : public QWidget
 {
     Q_OBJECT
     
@@ -114,5 +114,8 @@ class Viewer : public QGLWidget
         void mousePressEvent(QMouseEvent* me);
         void mouseReleaseEvent(QMouseEvent* me);
         void wheelEvent(QWheelEvent* we);
+	
+	private:
+		void regenImage();
         
 };

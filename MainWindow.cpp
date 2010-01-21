@@ -12,7 +12,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 
-MainWindow::MainWindow(QString file, QWidget* parent) :
+MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), _activePage(0)
 {
     _ui.setupUi(this);
@@ -48,9 +48,6 @@ MainWindow::MainWindow(QString file, QWidget* parent) :
     {
         _scalesCombo->addItem(s.toString());
     }
-    
-    if (!file.isNull())
-        openProject(file);
 }
 
 MainWindow::~MainWindow()

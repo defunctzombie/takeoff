@@ -48,7 +48,7 @@ class MainWindow : public QMainWindow
         QVector<Scale> _scales;
         
     public:
-        MainWindow(QString file, QWidget* parent = 0);
+        MainWindow(QWidget* parent = 0);
         ~MainWindow();
 	
 		void openProject(const QString& file);
