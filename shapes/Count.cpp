@@ -16,8 +16,18 @@ void Count::draw(QPainter& p, qreal scale) const
         QPointF point = _points[i] * scale;
         
         QRect textRect(point.x()-r, point.y()-r, diameter, diameter);
-        p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter, QString::number(i+1));
+        p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter, 
+                   QString::number(i+1));
+        p.drawEllipse(point, 10, 10);
+    }
+    
+    if (!_finished && !_mousePoint.isNull())
+    {
+        QPointF point = _mousePoint * scale;
         
+        QRect textRect(point.x()-r, point.y()-r, diameter, diameter);
+        p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter, 
+                   QString::number(_points.size()+1));
         p.drawEllipse(point, 10, 10);
     }
     

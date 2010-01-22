@@ -1,8 +1,9 @@
 #include "Area.hpp"
 
 void Area::draw(QPainter& p, qreal scale) const
-{
-    QPolygonF poly;
+{   
+    if (_points.size() == 0)
+        return;
     
     QColor fill = color();
     fill.setAlphaF(.2);
@@ -11,40 +12,37 @@ void Area::draw(QPainter& p, qreal scale) const
 	shapePen.setColor(fill);
 	shapePen.setWidth(1);
 	p.setPen(shapePen);
-	
-	const int size = _points.size();
-    for (int i=0; i < size; ++i)
-    {   
-        QPointF p1 = _points[i] * scale;
-        QPointF p2 = _points[(i+1) % size] * scale;
-        
-        poly.append(p1);
-        
-        if (i == (size-1) && !_finished)
-            shapePen.setStyle(Qt::DashLine);
-        else
-            shapePen.setStyle(Qt::SolidLine);
-        
-		p.setPen(shapePen);
-        p.drawLine(p1, p2);
+
+    QPolygonF poly;
+    
+    for (int i=0; i < _points.size(); ++i)
+    {
+        poly.append(_points[i] * scale);
     }
-	
-	shapePen.setWidth(4);
-	p.setPen(shapePen);
-	
-	p.drawPoints(poly.data(), poly.size());
+    
+    if (!_finished && !_mousePoint.isNull())
+        poly.append(_mousePoint * scale);
+    
+    poly.append(_points[0] * scale);
+    
+    QPainterPath pp;
+    pp.addPolygon(poly);
+    
+    p.fillPath(pp, fill);
+    p.drawPath(pp);
 	
 	if (_selected)
 	{
 		shapePen.setColor(Qt::green);
 		shapePen.setWidth(6);
-		p.setPen(shapePen);
-		p.drawPoints(poly.data(), poly.size());
 	}
+	else
+    {
+        shapePen.setWidth(4);
+    }
 	
-	QPainterPath pp;
-	pp.addPolygon(poly);
-    p.fillPath(pp, fill);
+    p.setPen(shapePen);
+    p.drawPoints(poly.data(), poly.size());
     
     if (_sibling)
         _sibling->draw(p, scale);

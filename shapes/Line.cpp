@@ -7,6 +7,9 @@ void Line::draw(QPainter& p, qreal scale) const
     {
         points[i] *= scale;
     }
+    
+    if (!_finished && !_mousePoint.isNull())
+        points.append(_mousePoint * scale);
 	
 	QPen shapePen;
 	shapePen.setStyle(Qt::SolidLine);

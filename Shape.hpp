@@ -17,6 +17,8 @@ class Shape
         
         QVector<QPointF> _points;
         
+        QPointF _mousePoint;
+        
     public:
         Shape();
         
@@ -29,6 +31,8 @@ class Shape
         virtual float area() const = 0;
         
         virtual void draw(QPainter& painter, qreal scale) const = 0;
+        
+        void setMousePoint(const QPointF& p) { _mousePoint = p; }
         
         void addPoint(QPointF p);
         

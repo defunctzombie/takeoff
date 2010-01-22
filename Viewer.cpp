@@ -30,6 +30,7 @@ Viewer::Viewer(QWidget* parent) :
     
     this->setBackgroundRole(QPalette::Mid);
     this->setCursor(Qt::CrossCursor);
+    this->setMouseTracking(true);
     
     _popupMenu = new QMenu(this);
     _actionRemoveNode = _popupMenu->addAction("remove node");
@@ -141,8 +142,7 @@ void Viewer::mouseMoveEvent(QMouseEvent* me)
         _dragStart = me->pos();
         repaint();
     }
-    
-    if (_dragPoint)
+    else if (_dragPoint)
     {
         //update the location
         QPoint d = me->pos() - _offset;
@@ -150,8 +150,14 @@ void Viewer::mouseMoveEvent(QMouseEvent* me)
         _dragPoint->setY(d.y()/(float)_page->dpi);
         repaint();
     }
-	
-	if (_tool == ZoomTool && _mouseDown)
+    else if (_shape && !_shape->isFinished())
+    {
+        QPoint d = me->pos() - _offset;
+        QPointF p(d.x()/(float)_page->dpi, d.y()/(float)_page->dpi);
+        _shape->setMousePoint(p);
+        repaint();
+    }
+	else if (_tool == ZoomTool && _mouseDown)
 	{
 		_mousePoint = me->pos();
 		repaint();
