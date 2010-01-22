@@ -34,13 +34,10 @@ int main(int argc, char* argv[])
     TakeoffApplication app(argc, argv);
 	
     mw = new MainWindow();
-    mw->setMinimumSize(500,500);
     mw->showMaximized();
     
     if (argc == 2)
-    {
         mw->openProject(QString(argv[1]));
-    }
     
     int ret = app.exec();
     

@@ -47,6 +47,8 @@ class MainWindow : public QMainWindow
         
         QVector<Scale> _scales;
         
+        bool _unsavedChanges;
+        
     public:
         MainWindow(QWidget* parent = 0);
         ~MainWindow();
@@ -74,4 +76,6 @@ class MainWindow : public QMainWindow
 	
 		//open a document for viewing
 		void open(const QString& filename);
+        
+        void closeEvent(QCloseEvent*);
 };

@@ -11,9 +11,11 @@
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDebug>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent), _activePage(0)
+    QMainWindow(parent), _activePage(0), _unsavedChanges(false)
 {
     _ui.setupUi(this);
     setupUi();
@@ -149,6 +151,10 @@ void MainWindow::toolAction(QAction* action)
 		{
 			_ui.viewer->changeTool(Viewer::ZoomTool);
 		}
+		else if (action == _ui.actionCount)
+        {
+            _ui.viewer->changeTool(Viewer::CountTool);
+        }
     }
 }
 
@@ -201,7 +207,6 @@ void MainWindow::openProject(const QString& filename)
     QFile inFile(filename);
 	
     inFile.open(QIODevice::ReadOnly);
-#if 1
     QDomDocument doc;
     doc.setContent(&inFile);
     
@@ -232,15 +237,6 @@ void MainWindow::openProject(const QString& filename)
         _pages.append(p);
     }
     
-#else
-    QDataStream in(&inFile);
-    
-    in >> _files;
-    in >> _pages;
-    
-    inFile.close();
-    
-#endif
     _ui.viewer->reset();
     
     int pageIndex = 0;
@@ -313,7 +309,8 @@ void MainWindow::on_actionSaveProject_triggered()
 	
 	_openProject = filename;
     
-#if 1
+    setWindowTitle("Takeoff - " + QFileInfo(_openProject).baseName());
+    
     QDomDocument doc;
     
     QDomElement takeoff = doc.createElement("takeoff");
@@ -345,16 +342,7 @@ void MainWindow::on_actionSaveProject_triggered()
     file.write(doc.toByteArray(4));
     file.close();
     
-#else
-    QFile outFile(_openProject);
-    outFile.open(QIODevice::WriteOnly);
-    QDataStream out(&outFile);
-    
-    out << _files;
-    out << _pages;
-    
-    outFile.close();
-#endif
+    _unsavedChanges = false;
 }
 
 void MainWindow::infoChanged(float length, float area)
@@ -365,15 +353,38 @@ void MainWindow::infoChanged(float length, float area)
         text += QString("  <strong>Sf: </strong>%1").arg(area, 0, 'f', 3);
     
     _infoLabel->setText(text);
+    
+    if (!_unsavedChanges)
+        setWindowTitle(windowTitle() + "*");
+    
+    _unsavedChanges = true;
+}
+
+void MainWindow::closeEvent(QCloseEvent* ce)
+{
+    if (_unsavedChanges)
+    {
+        const QMessageBox::StandardButton save = 
+            QMessageBox::question(this, "Save?", "Save changes before closing?", 
+                                QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                                
+        if (save == QMessageBox::Yes)
+        {
+            //save changes
+            on_actionSaveProject_triggered();
+            
+            //there was an error saving changes
+            if (_unsavedChanges)
+                ce->ignore();
+        }
+    }
+    ce->accept();
 }
 
 void MainWindow::setupUi()
 {
     /// setup toolbars ///
     QToolBar* _mainToolBar = new QToolBar("Main", this);
-    
-    //_mainToolBar->addAction(_ui.actionOpen);
-    //_mainToolBar->addSeparator();
     
     /// zoom
     _mainToolBar->addAction(_ui.actionZoom_In);
@@ -389,12 +400,14 @@ void MainWindow::setupUi()
     _mainToolBar->addAction(_ui.actionSelect);
     _mainToolBar->addAction(_ui.actionArea);
     _mainToolBar->addAction(_ui.actionLine);
+    _mainToolBar->addAction(_ui.actionCount);
     
     QActionGroup* toolsGroup = new QActionGroup(_mainToolBar);
 	toolsGroup->addAction(_ui.actionZoom_Window);
     toolsGroup->addAction(_ui.actionSelect);
     toolsGroup->addAction(_ui.actionArea);
     toolsGroup->addAction(_ui.actionLine);
+    toolsGroup->addAction(_ui.actionCount);
     
     _mainToolBar->addSeparator();
     

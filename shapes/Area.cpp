@@ -4,9 +4,12 @@ void Area::draw(QPainter& p, qreal scale) const
 {
     QPolygonF poly;
     
+    QColor fill = color();
+    fill.setAlphaF(.2);
+    
 	QPen shapePen;
-	shapePen.setColor(color());
-	shapePen.setWidth(2);
+	shapePen.setColor(fill);
+	shapePen.setWidth(1);
 	p.setPen(shapePen);
 	
 	const int size = _points.size();
@@ -38,9 +41,6 @@ void Area::draw(QPainter& p, qreal scale) const
 		p.setPen(shapePen);
 		p.drawPoints(poly.data(), poly.size());
 	}
-    
-    QColor fill = color();
-    fill.setAlphaF(.2);
 	
 	QPainterPath pp;
 	pp.addPolygon(poly);

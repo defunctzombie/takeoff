@@ -20,6 +20,7 @@ set (SRCS
     
     shapes/Area.cpp
     shapes/Line.cpp
+    shapes/Count.cpp
 )
 
 set (QT_USE_QTOPENGL true)

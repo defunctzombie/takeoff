@@ -1,13 +1,13 @@
-#pragma once 
+#pragma once
 
 #include "../Shape.hpp"
 
-/** area shape */
-class Area : public Shape
+/** Count shape */
+class Count : public Shape
 {
     public:
         virtual float length() const;
         virtual float area() const;
         virtual void draw(QPainter& painter, qreal scale) const;
-        virtual const char* name() const { return "Area"; }
+        virtual const char* name() const { return "Count"; }
 };

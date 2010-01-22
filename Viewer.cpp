@@ -11,8 +11,10 @@
 #include <poppler-qt4.h>
 
 #include "Page.hpp"
+
 #include "shapes/Area.hpp"
 #include "shapes/Line.hpp"
+#include "shapes/Count.hpp"
 
 Viewer::Viewer(QWidget* parent) :
     QWidget(parent), _thread(this)
@@ -83,45 +85,36 @@ void Viewer::paintEvent(QPaintEvent* pe)
     QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);
     
-    QPainterPath path;
-    path.addRoundedRect(2, 2, width()-4, height()-4, 3, 3);
-    p.setClipPath(path);
-    
-    p.translate(_offset);
-    
     QSizeF pageSize = _page->ppage->pageSizeF();
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
     
     if (_page->ppage->orientation() == Poppler::Page::Portrait)
         imageSize.transpose();
     
-    QRectF target(0,0, imageSize.width(), imageSize.height());
-	
 	_imageMutex.lock();
-    p.drawImage(target, _pageImage, _pageImage.rect());
-	_imageMutex.unlock();
-	
-    QPen shapePen;
-
+    
+    const QRect imageRect(_offset, imageSize.toSize());
+    const QRect drawRect = rect().intersected(imageRect);
+    
+    QPoint source = drawRect.topLeft() - imageRect.topLeft();
+    
+    const float ratio = _pageImage.width()/imageSize.width();
+    const QRect sourceRect(source * ratio, drawRect.size() * ratio);
+    
+    p.drawImage(drawRect, _pageImage, sourceRect);
+    
+    _imageMutex.unlock();
+    
+    p.save();
+    p.translate(_offset);
+    
     Q_FOREACH(const Shape* shape, _page->shapes)
     {
         shape->draw(p, _page->dpi);
     }
     
-    const float scale = _page->scale;
-    
-    float area = 0;
-    float length = 0;
-    Q_FOREACH(const Shape* shape, _selected)
-    {
-        area += scale * scale * shape->area();
-        length += scale * shape->length();
-    }
-    infoChanged(length, area);
-    
+    p.restore();
     p.setClipping(false);
-    
-    p.translate(-_offset);
 	
 	if (_tool == ZoomTool && _mouseDown)
 	{
@@ -138,12 +131,6 @@ void Viewer::paintEvent(QPaintEvent* pe)
 		
 		p.fillRect(zoomRect, c);
 	}
-    
-    QStyleOptionFrame frameStyle;
-    frameStyle.initFrom(this);
-    frameStyle.state = QStyle::State_Sunken;
-    
-    style()->drawPrimitive(QStyle::PE_Frame, &frameStyle, &p);
 }
 
 void Viewer::mouseMoveEvent(QMouseEvent* me)
@@ -195,11 +182,11 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                 _selected.clear();
             }
             
+            QPointF* drag = 0;
             Q_FOREACH(Shape* shape, _page->shapes)
             {
                 shape->setSelected(false);
-                
-                QPointF* drag = shape->selected(me->pos()-_offset, _page->dpi);
+                drag = shape->selected(me->pos()-_offset, _page->dpi);
                 if (drag)
                 {
 					_shape = shape;
@@ -210,15 +197,24 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                 }
             }
             
+            if (!drag)
+            {
+                _dragStart = me->pos();
+                _panning = true;
+            }
+            
+            recalcInfo();
             repaint();
         }
-        else if (_tool == AreaTool || _tool == LineTool)
+        else if (_tool == AreaTool || _tool == LineTool || _tool == CountTool)
         {
             Shape* newShape = 0;
             if (_shape == 0 || _shape->isFinished())
             {
                 if (_tool == AreaTool)
                     newShape = new Area();
+                else if (_tool == CountTool)
+                    newShape = new Count();
                 else
                     newShape = new Line();
                 
@@ -250,6 +246,8 @@ void Viewer::mousePressEvent(QMouseEvent* me)
             QPoint d = me->pos() - _offset;
             QPointF p(d.x()/(float)_page->dpi, d.y()/(float)_page->dpi);
             _shape->addPoint(p);
+            
+            recalcInfo();
             repaint();
         }
 		else if (_tool == ZoomTool)
@@ -266,6 +264,8 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
     
     if (!_page)
         return;
+    
+    _panning = false;
      
     if (me->button() == Qt::RightButton && _tool == SelectTool)
     {
@@ -280,14 +280,11 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
                 _selected.append(_removalShape);
                 _popupMenu->popup(this->mapToGlobal(me->pos()), _actionRemoveNode);
                 repaint();
+                recalcInfo();
                 return;
             }
         }
     }
-	else if (me->button() == Qt::MidButton && _panning)
-	{
-		//regenImage();
-	}
 	else if (_tool == ZoomTool && _mouseDown)
 	{
 		QPoint delta = _mousePoint - _dragStart;
@@ -298,12 +295,10 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
 		QPoint loc = _dragStart - _offset;
 		_offset -= loc * _pageImage.width()/dx;
 		
+        _mouseDown = false;
 		repaint();
 		regenImage();
 	}
-	
-	_panning = false;
-    _mouseDown = false;
 }
 
 void Viewer::mouseDoubleClickEvent(QMouseEvent* me)
@@ -354,7 +349,8 @@ void Viewer::zoomIn()
 	const int oldDpi = _page->dpi;
     _page->dpi += int(_page->dpi * .5);
 	
-	_offset *= _page->dpi/(float)oldDpi;
+    if (_offset.x() < 0 || _offset.y() < 0)
+        _offset *= _page->dpi/(float)oldDpi;
 	
     repaint();
     regenImage();
@@ -368,7 +364,8 @@ void Viewer::zoomOut()
 	const int oldDpi = _page->dpi;
     _page->dpi -= int(_page->dpi * .5);
 	
-	_offset *= _page->dpi/(float)oldDpi;
+    if (_offset.x() < 0 || _offset.y() < 0)
+        _offset *= _page->dpi/(float)oldDpi;
 	
     repaint();
     regenImage();
@@ -380,12 +377,28 @@ void Viewer::setScale(float scale)
         return;
     
     _page->scale = scale;
+    
+    recalcInfo();
     update();
 }
 
 void Viewer::regenImage()
 {
 	_thread.start();
+}
+
+void Viewer::recalcInfo()
+{
+    const float scale = _page->scale;
+    
+    float area = 0;
+    float length = 0;
+    Q_FOREACH(const Shape* shape, _selected)
+    {
+        area += scale * scale * shape->area();
+        length += scale * shape->length();
+    }
+    infoChanged(length, area);
 }
 
 void Viewer::changeTool(Viewer::Tool t)
@@ -442,7 +455,7 @@ void Viewer::changeColor(QColor c)
 {
     _color = c;
 	
-	if (_shape)
+	if (_shape && !_shape->isFinished())
 	{
 		_shape->color(_color);
 		repaint();
@@ -479,12 +492,10 @@ void Viewer::ImageThread::run()
     QImage newImage = _viewer->_page->ppage->renderToImage(dpi, dpi,
                                                            -1, -1, -1, -1, rotate);
     if (newImage.isNull())
-    {
-        // ... error message ...
         return;
-    }
 	
     _viewer->_imageMutex.lock();
+    
     //shallow copy
     _viewer->_pageImage = QImage(newImage);
         

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QPointF>
-
 #include "../Shape.hpp"
 
 /** Line shape */

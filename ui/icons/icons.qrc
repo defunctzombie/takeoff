@@ -10,6 +10,7 @@
     <file>document-open.png</file>
   </qresource>
   <qresource prefix="tools">
+    <file>count.png</file>
     <file>stock_draw-line.png</file>
     <file>stock_draw-polygon-45.png</file>
     <file>stock_draw-selection.png</file>

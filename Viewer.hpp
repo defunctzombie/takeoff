@@ -30,7 +30,8 @@ class Viewer : public QWidget
             SelectTool,
 			ZoomTool,
             LineTool,
-            AreaTool
+            AreaTool,
+            CountTool
         } Tool;
     
     private:
@@ -117,5 +118,6 @@ class Viewer : public QWidget
 	
 	private:
 		void regenImage();
+        void recalcInfo();
         
 };
