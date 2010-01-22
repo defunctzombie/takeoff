@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QColorDialog>
 #include <QStyleOptionFrame>
+#include <QKeyEvent>
 
 #include <poppler-qt4.h>
 
@@ -31,6 +32,7 @@ Viewer::Viewer(QWidget* parent) :
     this->setBackgroundRole(QPalette::Mid);
     this->setCursor(Qt::CrossCursor);
     this->setMouseTracking(true);
+    this->setFocusPolicy(Qt::ClickFocus);
     
     _popupMenu = new QMenu(this);
     _actionRemoveNode = _popupMenu->addAction("remove node");
@@ -311,6 +313,15 @@ void Viewer::mouseDoubleClickEvent(QMouseEvent* me)
 {
     _shape->setFinished(true);
     repaint();
+}
+
+void Viewer::keyReleaseEvent(QKeyEvent* ke)
+{
+    if (Qt::Key_Escape == ke->key())
+    {
+        _shape->setFinished(true);
+        repaint();
+    }
 }
 
 void Viewer::wheelEvent(QWheelEvent* we)

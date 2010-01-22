@@ -115,6 +115,7 @@ class Viewer : public QWidget
         void mousePressEvent(QMouseEvent* me);
         void mouseReleaseEvent(QMouseEvent* me);
         void wheelEvent(QWheelEvent* we);
+        void keyReleaseEvent(QKeyEvent* ke);
 	
 	private:
 		void regenImage();
