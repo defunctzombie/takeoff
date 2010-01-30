@@ -4,10 +4,7 @@
 #include <QImage>
 #include <QDomElement>
 
-namespace Poppler
-{
-    class Page;
-}
+#include <poppler-qt4.h>
 
 class Shape;
 
@@ -22,6 +19,11 @@ class Page
         
         float scale;
         int dpi;
+        
+        Poppler::Page::Rotation rotation;
+        
+        void rotateCW();
+        void rotateCCW();
         
         /** write self into the parent element */
         void write(QDomElement& parent) const;

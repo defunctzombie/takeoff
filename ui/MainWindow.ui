@@ -218,6 +218,30 @@
     <string>Count</string>
    </property>
   </action>
+  <action name="actionRotateLeft">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/rotate/object-rotate-left.png</normaloff>:/rotate/object-rotate-left.png</iconset>
+   </property>
+   <property name="text">
+    <string>rotateLeft</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate CCW 90</string>
+   </property>
+  </action>
+  <action name="actionRotateRight">
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/rotate/object-rotate-right.png</normaloff>:/rotate/object-rotate-right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate Right</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate CW 90</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

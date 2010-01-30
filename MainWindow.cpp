@@ -96,6 +96,10 @@ void MainWindow::open(const QString& filename)
         
         _activePage = &_pages.last();
         
+        Poppler::Page::Rotation rotate = Poppler::Page::Rotate0;
+        if (_activePage->ppage->orientation() == Poppler::Page::Portrait)
+            _activePage->rotation = Poppler::Page::Rotate90;
+        
         if (document->numPages() > 1)
             name += QString("-%1").arg(i+1);
         _drawingsCombo->addItem(name);
@@ -345,6 +349,18 @@ void MainWindow::on_actionSaveProject_triggered()
     _unsavedChanges = false;
 }
 
+void MainWindow::on_actionRotateLeft_triggered()
+{
+    _unsavedChanges = true;
+    _ui.viewer->rotateCCW();
+}
+
+void MainWindow::on_actionRotateRight_triggered()
+{
+    _unsavedChanges = true;
+    _ui.viewer->rotateCW();
+}
+
 void MainWindow::infoChanged(float length, float area)
 {
     QString text = QString("<strong>Lf: </strong>%1'").arg(length, 0, 'f', 3);
@@ -390,6 +406,10 @@ void MainWindow::setupUi()
     _mainToolBar->addAction(_ui.actionZoom_In);
     _mainToolBar->addAction(_ui.actionZoom_Out);
     _mainToolBar->addAction(_ui.actionZoom_Fit);
+    
+    /// rotates
+    _mainToolBar->addAction(_ui.actionRotateLeft);    
+    _mainToolBar->addAction(_ui.actionRotateRight);
     
     connect(_ui.actionZoom_Fit, SIGNAL(triggered()), _ui.viewer, SLOT(zoomFit()));
     

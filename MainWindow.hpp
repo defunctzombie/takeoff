@@ -71,6 +71,9 @@ class MainWindow : public QMainWindow
         void on_actionSaveProject_triggered();
         void on_actionOpenProject_triggered();
         
+        void on_actionRotateLeft_triggered();
+        void on_actionRotateRight_triggered();
+        
     protected:    
         void setupUi();
 	

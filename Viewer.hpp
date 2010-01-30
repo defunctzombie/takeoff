@@ -90,6 +90,9 @@ class Viewer : public QWidget
         //reset for new document
         void reset();
         
+        void rotateCW();
+        void rotateCCW();
+        
     Q_SIGNALS:
         void infoChanged(float length, float area);
         

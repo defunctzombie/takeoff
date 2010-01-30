@@ -75,6 +75,24 @@ void Viewer::setPage(Page* page)
 	zoomFit();
 }
 
+void Viewer::rotateCW()
+{
+    if (!_page)
+        return;
+    
+    _page->rotateCW();
+    _thread.start();
+}
+
+void Viewer::rotateCCW()
+{
+    if (!_page)
+        return;
+    
+    _page->rotateCCW();
+    _thread.start();
+}
+
 #include <QDebug>
 
 void Viewer::paintEvent(QPaintEvent* pe)
@@ -91,7 +109,9 @@ void Viewer::paintEvent(QPaintEvent* pe)
     QSizeF pageSize = _page->ppage->pageSizeF();
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
     
-    if (_page->ppage->orientation() == Poppler::Page::Portrait)
+    // if the page has been rotated off angle, need to adjust size
+    if (_page->rotation == Poppler::Page::Rotate90 || 
+        _page->rotation == Poppler::Page::Rotate270)
         imageSize.transpose();
     
 	_imageMutex.lock();
@@ -338,17 +358,18 @@ void Viewer::zoomFit()
     int dpix = width()/(pageSize.width()/72);
     int dpiy = height()/(pageSize.height()/72);
     
-    if (_page->ppage->orientation() == Poppler::Page::Portrait)
+    if (_page->rotation == Poppler::Page::Rotate90 || 
+        _page->rotation == Poppler::Page::Rotate270)
     {
         dpix = width()/(pageSize.height()/72);
         dpiy = height()/(pageSize.width()/72);
     }
     
     _page->dpi = qMin(dpix, dpiy);
-    
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
     
-    if (_page->ppage->orientation() == Poppler::Page::Portrait)
+    if (_page->rotation == Poppler::Page::Rotate90 || 
+        _page->rotation == Poppler::Page::Rotate270)
         imageSize.transpose();
     
     _offset = QPoint((width() - imageSize.width())/2, 
@@ -497,17 +518,14 @@ void Viewer::changeColor()
 
 void Viewer::ImageThread::run()
 {
-    Poppler::Page::Rotation rotate = Poppler::Page::Rotate0;
-    if (_viewer->_page->ppage->orientation() == Poppler::Page::Portrait)
-        rotate = Poppler::Page::Rotate90;
-	
-	const int dpi = _viewer->_page->dpi;
+    Page* page = _viewer->_page;
+	const int dpi = page->dpi;
 	
 	if (dpi > 250)
 		return;
 	
-    QImage newImage = _viewer->_page->ppage->renderToImage(dpi, dpi,
-                                                           -1, -1, -1, -1, rotate);
+    QImage newImage = page->ppage->renderToImage(dpi, dpi,
+                                                 -1, -1, -1, -1, page->rotation);
     if (newImage.isNull())
         return;
 	
@@ -515,7 +533,6 @@ void Viewer::ImageThread::run()
     
     //shallow copy
     _viewer->_pageImage = QImage(newImage);
-        
     _viewer->_imageMutex.unlock();
     
     _viewer->update(); //update not repaint to use queue

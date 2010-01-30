@@ -11,6 +11,45 @@ Page::Page(Poppler::Page* page) :
 {
     dpi = 1;
     scale = 1.0;
+    rotation = Poppler::Page::Rotate0;
+}
+
+void Page::rotateCW()
+{
+    switch (rotation)
+    {
+        case Poppler::Page::Rotate0:
+            rotation = Poppler::Page::Rotate90;
+            return;
+        case Poppler::Page::Rotate90:
+            rotation = Poppler::Page::Rotate180;
+            return;
+        case Poppler::Page::Rotate180:
+            rotation = Poppler::Page::Rotate270;
+            return;
+        case Poppler::Page::Rotate270:
+            rotation = Poppler::Page::Rotate0;
+            return;
+    }
+}
+
+void Page::rotateCCW()
+{
+    switch (rotation)
+    {
+        case Poppler::Page::Rotate0:
+            rotation = Poppler::Page::Rotate270;
+            return;
+        case Poppler::Page::Rotate270:
+            rotation = Poppler::Page::Rotate180;
+            return;
+        case Poppler::Page::Rotate180:
+            rotation = Poppler::Page::Rotate90;
+            return;
+        case Poppler::Page::Rotate90:
+            rotation = Poppler::Page::Rotate0;
+            return;
+    }
 }
 
 void Page::write(QDomElement& parent) const
@@ -19,6 +58,7 @@ void Page::write(QDomElement& parent) const
     parent.appendChild(self);
     
     self.setAttribute("scale", scale);
+    self.setAttribute("rotation", static_cast<int>(rotation));
     
     Q_FOREACH(Shape* s, shapes)
     {
@@ -50,7 +90,9 @@ void Page::write(QDomElement& parent) const
 void Page::read(const QDomElement& self)
 {
     scale = self.attribute("scale", "1.0").toFloat();
-    
+    rotation = static_cast<Poppler::Page::Rotation>(
+                self.attribute("rotation", 0).toInt());
+                
     QDomNodeList shapesList = self.elementsByTagName("shape");
     
     Shape* prev = 0;
