@@ -88,8 +88,10 @@ void MainWindow::open(const QString& filename)
     //_ui.leftSide->setVisible(showPageList);
     
     QFileInfo fInfo(filename);
-    QString name(fInfo.baseName());
-    //populate the list box
+    
+    //use complete base name because some files can be named: A2.1.0.pdf
+    QString name(fInfo.completeBaseName());
+    
     for (int i=0 ; i<document->numPages() ; ++i)
     {
         _pages.append(Page(document->page(i)));

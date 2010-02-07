@@ -5,6 +5,7 @@
 #include "Shape.hpp"
 #include "shapes/Area.hpp"
 #include "shapes/Line.hpp"
+#include "shapes/Count.hpp"
 
 Page::Page(Poppler::Page* page) :
     ppage(page)
@@ -86,7 +87,7 @@ void Page::write(QDomElement& parent) const
         }
     }
 }
-#include <QDebug>
+
 void Page::read(const QDomElement& self)
 {
     scale = self.attribute("scale", "1.0").toFloat();
@@ -107,6 +108,8 @@ void Page::read(const QDomElement& self)
         Shape* shape = 0;
         if (type == "Area")
             shape = new Area();
+        else if (type == "Count")
+            shape = new Count();
         else
             shape = new Line();
         
