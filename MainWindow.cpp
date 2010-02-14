@@ -264,7 +264,7 @@ void MainWindow::openProject(const QString& filename)
         _documents.append(document);
         
         QFileInfo fInfo(filename);
-        QString name(fInfo.baseName());
+        QString name(fInfo.completeBaseName());
         
         //populate the list box
         for (int i=0 ; i<document->numPages() ; ++i)
