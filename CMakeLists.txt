@@ -3,12 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 
 set(target takeoff)
 
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-
-find_package(PkgConfig REQUIRED)
-pkg_search_module(POPPLER REQUIRED poppler-qt4)
-include_directories(${POPPLER_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${POPPLER_LIBRARIES})
+# TODO only if mingw
+#add_definitions(-Wl,-subsystem,windows)
 
 set (SRCS
     main.cpp
@@ -28,7 +24,6 @@ set (QT_USE_QTXML true)
 
 find_package ( Qt4 REQUIRED )
 include ( ${QT_USE_FILE} )
-set(LIBS ${LIBS} ${QT_LIBRARIES})
 
 #needed for moc usage and includes
 include_directories(${PROJECT_BINARY_DIR})
@@ -49,4 +44,4 @@ qt4_add_resources (QRC_FILES
 )
 
 add_executable(${target} ${SRCS} ${MOC_SRCS} ${QRC_FILES} ${UI_FILES})
-target_link_libraries(${target} ${LIBS})
+target_link_libraries(${target} ${QT_LIBRARIES} poppler-qt4)

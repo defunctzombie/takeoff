@@ -9,7 +9,7 @@
 #include <QStyleOptionFrame>
 #include <QKeyEvent>
 
-#include <poppler-qt4.h>
+#include <poppler/qt4/poppler-qt4.h>
 
 #include "Page.hpp"
 

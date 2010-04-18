@@ -4,7 +4,7 @@
 #include <QImage>
 #include <QDomElement>
 
-#include <poppler-qt4.h>
+#include <poppler/qt4/poppler-qt4.h>
 
 class Shape;
 

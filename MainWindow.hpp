@@ -9,7 +9,7 @@
 #include <QListWidget>
 #include <QSplitter>
 #include <QLineEdit>
-#include <poppler-qt4.h>
+#include <poppler/qt4/poppler-qt4.h>
 
 #include "Page.hpp"
 #include "ColorSwatch.hpp"
