@@ -8,7 +8,9 @@ void Count::draw(QPainter& p, qreal scale) const
     pen.setWidth(2);
     p.setPen(pen);
     
-    const int diameter = 10;
+    p.setFont(QFont("sans", 7, QFont::Bold));
+    
+    const int diameter = 20;
     const int r = diameter/2;
     
     for (int i=0; i <_points.size(); ++i)
@@ -18,7 +20,7 @@ void Count::draw(QPainter& p, qreal scale) const
         QRect textRect(point.x()-r, point.y()-r, diameter, diameter);
         p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter, 
                    QString::number(i+1));
-        p.drawEllipse(point, 10, 10);
+        p.drawEllipse(point, r, r);
     }
     
     if (!_finished && !_mousePoint.isNull())
@@ -28,7 +30,7 @@ void Count::draw(QPainter& p, qreal scale) const
         QRect textRect(point.x()-r, point.y()-r, diameter, diameter);
         p.drawText(textRect, Qt::AlignVCenter | Qt::AlignHCenter, 
                    QString::number(_points.size()+1));
-        p.drawEllipse(point, 10, 10);
+        p.drawEllipse(point, r, r);
     }
     
     #if 0

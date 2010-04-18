@@ -245,14 +245,22 @@ void MainWindow::openProject(const QString& filename)
     
     _ui.viewer->reset();
     
+    QDir projectDir(QFileInfo(filename).absoluteDir());
+    
     int pageIndex = 0;
     //go through files and load them
-    Q_FOREACH(const QString& filename, _files)
+    Q_FOREACH(const QString& pdfFile, _files)
     {
-        Poppler::Document* document = Poppler::Document::load(filename);
+        // backwards compat for when we used to save absolute paths
+        QString refFilename = pdfFile;
+        QFileInfo refFile(pdfFile);
+        if (refFile.isRelative())
+            refFilename = projectDir.absoluteFilePath(refFilename);
+        
+        Poppler::Document* document = Poppler::Document::load(refFilename);
         if (!document)
         {
-            QMessageBox::critical(this, "Document Error", "Unable to open the document: " + filename);
+            QMessageBox::critical(this, "Document Error", "Unable to open the document: " + refFilename);
             return;
         }
         else if (document->isLocked())
@@ -263,7 +271,7 @@ void MainWindow::openProject(const QString& filename)
         
         _documents.append(document);
         
-        QFileInfo fInfo(filename);
+        QFileInfo fInfo(refFilename);
         QString name(fInfo.completeBaseName());
         
         //populate the list box
@@ -314,6 +322,8 @@ void MainWindow::on_actionSaveProject_triggered()
 	}
 	
 	_openProject = filename;
+    QFileInfo projectFile(_openProject);
+    QDir projectDir(projectFile.absoluteDir());
     
     setWindowTitle("Takeoff - " + QFileInfo(_openProject).baseName());
     
@@ -328,8 +338,9 @@ void MainWindow::on_actionSaveProject_triggered()
     
     Q_FOREACH (const QString& s, _files)
     {
+        QString docPath = projectDir.relativeFilePath(s);
         QDomElement document = doc.createElement("document");
-        document.setAttribute("ref", s);
+        document.setAttribute("ref", docPath);
         documents.appendChild(document);
     }
     
