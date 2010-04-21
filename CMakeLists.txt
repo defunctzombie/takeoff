@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 
 set(target takeoff)
 
-# TODO only if mingw
-#add_definitions(-Wl,-subsystem,windows)
+if (MINGW)
+	add_definitions(-Wl,-subsystem,windows)
+endif()
 
 set (SRCS
     main.cpp
