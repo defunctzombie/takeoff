@@ -79,8 +79,6 @@ float Area::area() const
     ///http://local.wasp.uwa.edu.au/~pbourke/geometry/polyarea/
     
     float area = 0;
-    if (_sibling)
-        area += _sibling->area();
     
     if (_points.size() < 3)
         return 0;
@@ -93,8 +91,10 @@ float Area::area() const
         
         area += (p1.x()*p2.y() - p2.x()*p1.y());
     }
+	
+	area = qAbs(area);
+	if (_sibling)
+        area += _sibling->area();
     
-    area = qAbs(area * .5);
-    
-    return area;
+    return area * .5;
 }

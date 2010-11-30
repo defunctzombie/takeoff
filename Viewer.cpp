@@ -200,6 +200,7 @@ void Viewer::mousePressEvent(QMouseEvent* me)
     {
         if (_tool == SelectTool)
         {
+			_shape = 0;
             Q_FOREACH(Shape* shape, _selected)
             {
                 shape->setSelected(false);
@@ -327,6 +328,8 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
 		repaint();
 		regenImage();
 	}
+	
+	recalcInfo();
 }
 
 void Viewer::mouseDoubleClickEvent(QMouseEvent* me)
