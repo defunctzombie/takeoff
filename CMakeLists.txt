@@ -44,5 +44,48 @@ qt4_add_resources (QRC_FILES
     ui/icons/icons.qrc
 )
 
-add_executable(${target} ${SRCS} ${MOC_SRCS} ${QRC_FILES} ${UI_FILES})
+set(CPACK_GENERATOR Bundle)
+SET(MACOSX_BUNDLE_ICON_FILE app.icns) 
+
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/app.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+add_executable(${target} MACOSX_BUNDLE WIN32 ${SRCS} ${MOC_SRCS} ${QRC_FILES} ${UI_FILES}
+${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/app.icns
+${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns
+)
 target_link_libraries(${target} ${QT_LIBRARIES} poppler-qt4)
+
+install(TARGETS takeoff BUNDLE DESTINATION . COMPONENT Runtime RUNTIME DESTINATION bin COMPONENT Runtime)
+
+SET(plugin_dest_dir ${target}.app/Contents/MacOS)
+SET(qtconf_dest_dir ${target}.app/Contents/Resources)
+
+INSTALL(CODE "
+    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
+    " COMPONENT Runtime)
+
+if (APPLE)
+	set(APPS ${CMAKE_INSTALL_PREFIX}/${target}.app) 
+endif()
+
+set(DIRS ${QT_LIBRARY_DIRS} /usr/local/lib) 
+
+INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION ${plugin_dest_dir}/plugins COMPONENT Runtime)
+
+if (${QT_MAC_USE_COCOA} STREQUAL "1")
+   install(DIRECTORY ${QT_LIBRARY_DIR}/QtGui.framework/Resources/qt_menu.nib DESTINATION ${APPS}/Contents/Resources COMPONENT Runtime)
+endif()
+
+include(InstallRequiredSystemLibraries)
+
+INSTALL(CODE "
+	file(GLOB_RECURSE QTPLUGINS
+      \"\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+   include(BundleUtilities)
+   fixup_bundle(\"${APPS}\"   \"${QTPLUGINS}\"   \"${DIRS}\")
+   " COMPONENT Runtime)
+
+set(CPACK_BINARY_DRAGNDROP ON)
+INCLUDE(CPack)
+
