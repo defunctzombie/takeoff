@@ -56,35 +56,36 @@ ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns
 )
 target_link_libraries(${target} ${QT_LIBRARIES} poppler-qt4)
 
-install(TARGETS takeoff BUNDLE DESTINATION . COMPONENT Runtime RUNTIME DESTINATION bin COMPONENT Runtime)
-
-SET(plugin_dest_dir ${target}.app/Contents/MacOS)
-SET(qtconf_dest_dir ${target}.app/Contents/Resources)
-
-INSTALL(CODE "
-    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
-    " COMPONENT Runtime)
-
 if (APPLE)
-	set(APPS ${CMAKE_INSTALL_PREFIX}/${target}.app) 
+	install(TARGETS takeoff BUNDLE DESTINATION . COMPONENT Runtime RUNTIME DESTINATION bin COMPONENT Runtime)
+
+	SET(plugin_dest_dir ${target}.app/Contents/MacOS)
+	SET(qtconf_dest_dir ${target}.app/Contents/Resources)
+
+	INSTALL(CODE "
+	    file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${qtconf_dest_dir}/qt.conf\" \"\")
+	    " COMPONENT Runtime)
+
+		set(APPS ${CMAKE_INSTALL_PREFIX}/${target}.app) 
+
+	set(DIRS ${QT_LIBRARY_DIRS} /usr/local/lib) 
+
+	INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION ${plugin_dest_dir}/plugins COMPONENT Runtime)
+
+	if (${QT_MAC_USE_COCOA} STREQUAL "1")
+	   install(DIRECTORY ${QT_LIBRARY_DIR}/QtGui.framework/Resources/qt_menu.nib DESTINATION ${APPS}/Contents/Resources COMPONENT Runtime)
+	endif()
+
+	include(InstallRequiredSystemLibraries)
+
+	INSTALL(CODE "
+		file(GLOB_RECURSE QTPLUGINS
+	      \"\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+	   include(BundleUtilities)
+	   fixup_bundle(\"${APPS}\"   \"${QTPLUGINS}\"   \"${DIRS}\")
+	   " COMPONENT Runtime)
+
 endif()
-
-set(DIRS ${QT_LIBRARY_DIRS} /usr/local/lib) 
-
-INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION ${plugin_dest_dir}/plugins COMPONENT Runtime)
-
-if (${QT_MAC_USE_COCOA} STREQUAL "1")
-   install(DIRECTORY ${QT_LIBRARY_DIR}/QtGui.framework/Resources/qt_menu.nib DESTINATION ${APPS}/Contents/Resources COMPONENT Runtime)
-endif()
-
-include(InstallRequiredSystemLibraries)
-
-INSTALL(CODE "
-	file(GLOB_RECURSE QTPLUGINS
-      \"\${CMAKE_INSTALL_PREFIX}/${plugin_dest_dir}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-   include(BundleUtilities)
-   fixup_bundle(\"${APPS}\"   \"${QTPLUGINS}\"   \"${DIRS}\")
-   " COMPONENT Runtime)
 
 set(CPACK_BINARY_DRAGNDROP ON)
 INCLUDE(CPack)
