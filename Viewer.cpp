@@ -16,6 +16,7 @@
 #include "shapes/Area.hpp"
 #include "shapes/Line.hpp"
 #include "shapes/Count.hpp"
+#include "shapes/Check.hpp"
 
 Viewer::Viewer(QWidget* parent) :
     QWidget(parent), _thread(this)
@@ -235,7 +236,7 @@ void Viewer::mousePressEvent(QMouseEvent* me)
             recalcInfo();
             repaint();
         }
-        else if (_tool == AreaTool || _tool == LineTool || _tool == CountTool)
+        else if (_tool == AreaTool || _tool == LineTool || _tool == CountTool || _tool == CheckTool)
         {
             Shape* newShape = 0;
             if (_shape == 0 || _shape->isFinished())
@@ -244,8 +245,12 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                     newShape = new Area();
                 else if (_tool == CountTool)
                     newShape = new Count();
-                else
+                else if (_tool == LineTool)
                     newShape = new Line();
+                else if (_tool == CheckTool)
+                    newShape = new Check();
+                else; // TODO should have better way to handle this
+                // this happens if I forget to add new tool handling here.
                 
                 newShape->color(_color);
                 newShape->setSelected(true);

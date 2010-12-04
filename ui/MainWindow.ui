@@ -52,7 +52,7 @@
      <x>0</x>
      <y>0</y>
      <width>557</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProject">
@@ -240,6 +240,21 @@
    </property>
    <property name="toolTip">
     <string>Rotate CW 90</string>
+   </property>
+  </action>
+  <action name="actionCheck">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons/icons.qrc">
+     <normaloff>:/tools/check.png</normaloff>:/tools/check.png</iconset>
+   </property>
+   <property name="text">
+    <string>Check</string>
+   </property>
+   <property name="toolTip">
+    <string>Check</string>
    </property>
   </action>
  </widget>

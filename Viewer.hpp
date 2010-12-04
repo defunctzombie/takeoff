@@ -28,10 +28,11 @@ class Viewer : public QWidget
         typedef enum
         {
             SelectTool,
-			ZoomTool,
+            ZoomTool,
             LineTool,
             AreaTool,
-            CountTool
+            CountTool,
+            CheckTool
         } Tool;
     
     private:

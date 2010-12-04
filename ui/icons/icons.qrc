@@ -1,22 +1,23 @@
 <RCC>
-  <qresource prefix="zoom">
-    <file>zoom-fit-best.png</file>
-    <file>zoom-original.png</file>
-    <file>zoom-in.png</file>
-    <file>zoom-out.png</file>
-  </qresource>
-  <qresource prefix="rotate">
-    <file>object-rotate-left.png</file>
-    <file>object-rotate-right.png</file>
-  </qresource>
-  <qresource prefix="file">
-    <file>app.svg</file>
-    <file>document-open.png</file>
-  </qresource>
-  <qresource prefix="tools">
-    <file>count.png</file>
-    <file>stock_draw-line.png</file>
-    <file>stock_draw-polygon-45.png</file>
-    <file>stock_draw-selection.png</file>
-  </qresource>
+    <qresource prefix="/zoom">
+        <file>zoom-fit-best.png</file>
+        <file>zoom-original.png</file>
+        <file>zoom-in.png</file>
+        <file>zoom-out.png</file>
+    </qresource>
+    <qresource prefix="/rotate">
+        <file>object-rotate-left.png</file>
+        <file>object-rotate-right.png</file>
+    </qresource>
+    <qresource prefix="/file">
+        <file>app.svg</file>
+        <file>document-open.png</file>
+    </qresource>
+    <qresource prefix="/tools">
+        <file>count.png</file>
+        <file>stock_draw-line.png</file>
+        <file>stock_draw-polygon-45.png</file>
+        <file>stock_draw-selection.png</file>
+        <file>check.png</file>
+    </qresource>
 </RCC>

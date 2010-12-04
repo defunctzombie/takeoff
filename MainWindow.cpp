@@ -161,6 +161,10 @@ void MainWindow::toolAction(QAction* action)
         {
             _ui.viewer->changeTool(Viewer::CountTool);
         }
+        else if (action == _ui.actionCheck)
+        {
+            _ui.viewer->changeTool(Viewer::CheckTool);
+        }
     }
 }
 
@@ -434,6 +438,7 @@ void MainWindow::setupUi()
     _mainToolBar->addAction(_ui.actionArea);
     _mainToolBar->addAction(_ui.actionLine);
     _mainToolBar->addAction(_ui.actionCount);
+    _mainToolBar->addAction(_ui.actionCheck);
     
     QActionGroup* toolsGroup = new QActionGroup(_mainToolBar);
 	toolsGroup->addAction(_ui.actionZoom_Window);
@@ -441,6 +446,7 @@ void MainWindow::setupUi()
     toolsGroup->addAction(_ui.actionArea);
     toolsGroup->addAction(_ui.actionLine);
     toolsGroup->addAction(_ui.actionCount);
+    toolsGroup->addAction(_ui.actionCheck);
     
     _mainToolBar->addSeparator();
     

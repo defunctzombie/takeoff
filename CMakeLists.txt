@@ -18,6 +18,7 @@ set (SRCS
     shapes/Area.cpp
     shapes/Line.cpp
     shapes/Count.cpp
+	shapes/Check.cpp
 )
 
 set (QT_USE_QTOPENGL true)

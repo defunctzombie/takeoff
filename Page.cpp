@@ -2,10 +2,13 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
+#include <QDebug>
+
 #include "Shape.hpp"
 #include "shapes/Area.hpp"
 #include "shapes/Line.hpp"
 #include "shapes/Count.hpp"
+#include "shapes/Check.hpp"
 
 Page::Page(Poppler::Page* page) :
     ppage(page)
@@ -110,8 +113,15 @@ void Page::read(const QDomElement& self)
             shape = new Area();
         else if (type == "Count")
             shape = new Count();
-        else
+        else if (type == "Line")
             shape = new Line();
+        else if (type == "Check")
+            shape = new Check();
+        else
+        {
+            qDebug() << "don't know how to make shape for: " << type;
+            continue; //Don't make a new shape for things we don't know about:
+        }
         
         if (prev)
         {
