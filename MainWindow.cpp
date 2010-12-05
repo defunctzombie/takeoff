@@ -98,10 +98,6 @@ void MainWindow::open(const QString& filename)
         
         _activePage = &_pages.last();
         
-        Poppler::Page::Rotation rotate = Poppler::Page::Rotate0;
-        if (_activePage->ppage->orientation() == Poppler::Page::Portrait)
-            _activePage->rotation = Poppler::Page::Rotate90;
-        
         if (document->numPages() > 1)
             name += QString("-%1").arg(i+1);
         _drawingsCombo->addItem(name);
