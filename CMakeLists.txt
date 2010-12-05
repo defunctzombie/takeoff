@@ -45,6 +45,7 @@ qt4_add_resources (QRC_FILES
     ui/icons/icons.qrc
 )
 
+set(CPACK_BUNDLE_NAME takeoff)
 set(CPACK_GENERATOR Bundle)
 SET(MACOSX_BUNDLE_ICON_FILE app.icns) 
 
