@@ -92,9 +92,9 @@ float Area::area() const
         area += (p1.x()*p2.y() - p2.x()*p1.y());
     }
 	
-	area = qAbs(area);
+    area = qAbs(area) * .5;
 	if (_sibling)
         area += _sibling->area();
     
-    return area * .5;
+    return area;
 }
