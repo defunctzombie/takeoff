@@ -11,14 +11,16 @@ set (SRCS
     main.cpp
     MainWindow.cpp
     Viewer.cpp
-    Shape.cpp
     Page.cpp
     ColorSwatch.cpp
-    
+)
+
+set (SHAPE_SRCS
+    Shape.cpp
     shapes/Area.cpp
     shapes/Line.cpp
     shapes/Count.cpp
-	shapes/Check.cpp
+    shapes/Check.cpp
 )
 
 set (QT_USE_QTOPENGL true)
@@ -56,7 +58,10 @@ add_executable(${target} MACOSX_BUNDLE WIN32 ${SRCS} ${MOC_SRCS} ${QRC_FILES} ${
 ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/app.icns
 ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns
 )
-target_link_libraries(${target} ${QT_LIBRARIES} poppler-qt4)
+
+add_library(shape STATIC ${QT_LIBRARIES} ${SHAPE_SRCS})
+
+target_link_libraries(${target} shape ${QT_LIBRARIES} poppler-qt4)
 
 if (APPLE)
 	install(TARGETS takeoff BUNDLE DESTINATION . COMPONENT Runtime RUNTIME DESTINATION bin COMPONENT Runtime)
@@ -91,4 +96,10 @@ endif()
 
 set(CPACK_BINARY_DRAGNDROP ON)
 INCLUDE(CPack)
+
+ENABLE_TESTING()
+
+add_executable(test_area_shape test/test_area_shape.cpp)
+target_link_libraries(test_area_shape shape cppunit ${QT_LIBRARIES})
+add_test(test_area_shape ${EXECUTABLE_OUTPUT_PATH}/test_area_shape)
 
