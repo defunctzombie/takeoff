@@ -59,8 +59,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/app.icns
 ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns
 )
 
-add_library(shape STATIC ${QT_LIBRARIES} ${SHAPE_SRCS})
-
+add_library(shape STATIC ${SHAPE_SRCS})
+target_link_libraries(shape ${QT_LIBRARIES})
 target_link_libraries(${target} shape ${QT_LIBRARIES} poppler-qt4)
 
 if (APPLE)
@@ -100,6 +100,6 @@ INCLUDE(CPack)
 ENABLE_TESTING()
 
 add_executable(test_area_shape test/test_area_shape.cpp)
-target_link_libraries(test_area_shape shape cppunit ${QT_LIBRARIES})
+target_link_libraries(test_area_shape shape cppunit)
 add_test(test_area_shape ${EXECUTABLE_OUTPUT_PATH}/test_area_shape)
 
