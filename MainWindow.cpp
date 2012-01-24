@@ -80,13 +80,6 @@ void MainWindow::open(const QString& filename)
     _documents.append(document);
     _ui.viewer->reset();
     
-    //bool showPageList = false;
-    //if (_document->numPages() > 1)
-    //    showPageList = true;
-    
-    //_ui.pageList->clear();
-    //_ui.leftSide->setVisible(showPageList);
-    
     QFileInfo fInfo(filename);
     
     //use complete base name because some files can be named: A2.1.0.pdf
@@ -170,6 +163,11 @@ void MainWindow::on_actionOpen_triggered()
     
     if (!filename.isNull())
         open(filename);
+}
+
+void MainWindow::on_actionNew_main_window_triggered()
+{
+    (new MainWindow())->show();
 }
 
 void MainWindow::on_actionAdd_Drawing_triggered()

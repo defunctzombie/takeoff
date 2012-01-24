@@ -73,6 +73,8 @@ class MainWindow : public QMainWindow
         
         void on_actionRotateLeft_triggered();
         void on_actionRotateRight_triggered();
+
+        void on_actionNew_main_window_triggered();
         
     protected:    
         void setupUi();

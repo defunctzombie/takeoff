@@ -52,7 +52,7 @@
      <x>0</x>
      <y>0</y>
      <width>557</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProject">
@@ -71,8 +71,15 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionNew_main_window"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProject"/>
+   <addaction name="menuWindow"/>
   </widget>
   <action name="actionZoom_In">
    <property name="icon">
@@ -255,6 +262,11 @@
    </property>
    <property name="toolTip">
     <string>Check</string>
+   </property>
+  </action>
+  <action name="actionNew_main_window">
+   <property name="text">
+    <string>New Workspace</string>
    </property>
   </action>
  </widget>
