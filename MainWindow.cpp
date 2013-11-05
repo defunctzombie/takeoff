@@ -14,6 +14,8 @@
 #include <QDebug>
 #include <QCloseEvent>
 
+#include "NaturalSort.hpp"
+
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), _activePage(0), _unsavedChanges(false)
 {
@@ -87,13 +89,18 @@ void MainWindow::open(const QString& filename)
     
     for (int i=0 ; i<document->numPages() ; ++i)
     {
-        _pages.append(Page(document->page(i)));
-        
+        Poppler::Page* page = document->page(i);
+
+        _pages.append(Page(page));
+
         _activePage = &_pages.last();
-        
-        if (document->numPages() > 1)
-            name += QString("-%1").arg(i+1);
-        _drawingsCombo->addItem(name);
+
+        QString pagename = name;
+        if (document->numPages() > 1) {
+            pagename += QString("-%1").arg(i+1);
+        }
+
+        _drawingsCombo->addItem(pagename);
     }
     
     _drawingsCombo->setCurrentIndex(0);
@@ -184,15 +191,19 @@ void MainWindow::on_actionAdd_Drawings_triggered()
         return;
     
     QDir drawingDir(dir);
-    
+
     QStringList filters;
     filters << "*.pdf" << "*.PDF";
     drawingDir.setNameFilters(filters);
-    
+
     QStringList files = drawingDir.entryList();
-    
+
+    std::sort(files.begin(), files.end(), NaturalSort());
+
     for (int i=0 ; i<files.size() ; ++i)
+    {
         open(drawingDir.absoluteFilePath(files.at(i)));
+    }
 }
 
 void MainWindow::openProject(const QString& filename)
@@ -276,14 +287,15 @@ void MainWindow::openProject(const QString& filename)
         for (int i=0 ; i<document->numPages() ; ++i)
         {
             _pages[pageIndex].ppage = document->page(i);
-            
             _activePage = &_pages[pageIndex];
-            
-            if (document->numPages() > 1)
-                name += QString("-%1").arg(i+1);
-            
-            _drawingsCombo->addItem(name);
-            
+
+            QString pagename = name;
+            if (document->numPages() > 1) {
+                pagename += QString("-%1").arg(i+1);
+            }
+
+            _drawingsCombo->addItem(pagename);
+
             pageIndex++;
         }
     }

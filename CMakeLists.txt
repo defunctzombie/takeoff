@@ -33,6 +33,9 @@ include ( ${QT_USE_FILE} )
 include_directories(${PROJECT_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
 
+include_directories(/Users/shtylman/opt/include)
+link_directories(/Users/shtylman/opt/lib)
+
 qt4_wrap_cpp ( MOC_SRCS
     Viewer.hpp
     MainWindow.hpp
@@ -60,6 +63,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/resources/mac/project.icns
 )
 
 add_library(shape STATIC ${SHAPE_SRCS})
+
 target_link_libraries(shape ${QT_LIBRARIES})
 target_link_libraries(${target} shape ${QT_LIBRARIES} poppler-qt4)
 
@@ -98,6 +102,9 @@ set(CPACK_BINARY_DRAGNDROP ON)
 INCLUDE(CPack)
 
 ENABLE_TESTING()
+
+include_directories(/opt/local/include)
+link_directories(/opt/local/lib)
 
 add_executable(test_area_shape test/test_area_shape.cpp)
 target_link_libraries(test_area_shape shape cppunit)
