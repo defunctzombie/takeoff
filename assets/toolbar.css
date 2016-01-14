@@ -1,0 +1,53 @@
+.toolbar {
+    padding: 3px;
+    height: 50px;
+    background-color: #eee;
+}
+
+.toolbar-fixed-top {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.toolbar-separator {
+    width: 10px;
+    display: inline-block;
+}
+
+.toolbar .button {
+    width: 44px;
+    height: 44px;
+    border: 0px;
+    line-height: 44px;
+    font-size: 20px;
+    border-radius: 2px;
+    background: transparent;
+}
+
+.toolbar .button:hover {
+    background: rgba(230, 230, 230, 0.4);
+}
+
+.toolbar .button:focus {
+    border: 0;
+    outline: 0;
+}
+
+.toolbar .button.active {
+    background: rgba(210, 210, 210, 0.8);
+}
+
+.toolbar input {
+    height: 40px;
+    margin: 0px;
+    line-height: 50px;
+    font-size: 15px;
+}
+
+.toolbar select {
+    height: 40px;
+    margin: 0px;
+    line-height: 50px;
+    font-size: 15px;
+}

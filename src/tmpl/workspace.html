@@ -1,0 +1,48 @@
+<div>
+  <div class="toolbar toolbar-fixed-top">
+
+    <span class="tools"></span>
+
+    <!--
+    <button class="button icon-zoom-out" active-tool tool="zoom-out" alt="zoom out"></button>
+    <button class="button icon-zoom-in"></button>
+    <button class="button icon-zoom-window"></button>
+    <button class="button icon-zoom-fit"></button>
+
+    <div class="toolbar-separator"></div>
+
+    <button class="button icon-rotate-left"></button>
+    <button class="button icon-rotate-right"></button>
+
+    <div class="toolbar-separator"></div>
+
+    <button class="button icon-pointer" active-tool tool="pointer"></button>
+    <button class="button icon-area" active-tool tool="area"></button>
+    <button class="button icon-line" active-tool tool="line"></button>
+    <button class="button icon-number" active-tool tool="number"></button>
+    <button class="button icon-check" active-tool tool="check"></button>
+
+    <div class="toolbar-separator"></div>
+
+    <button class="button icon-group"></button>
+    <button class="button icon-color-picker"></button>
+
+    <div class="toolbar-separator"></div>
+    -->
+
+    <div class="hidden">
+      <select data-visible="scales">
+        <option>foo</option>
+      </select>
+      <input type="text" size=5/>
+      <select on-change="on_change_page" data-visible="pages.length">
+        <option each="pages" value="{{id}}">{{name}}</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="drawing">
+    <canvas id="canvas-pdf" class="canvas" width="800px" height="500px"></canvas>
+    <canvas id="canvas-shapes" class="canvas" width="800px" height="500px"></canvas>
+  </div>
+</div>

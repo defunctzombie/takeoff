@@ -1,0 +1,70 @@
+@font-face {
+	font-family: 'takeoff';
+	src:url('fonts/takeoff.eot?6yb5fz');
+	src:url('fonts/takeoff.eot?#iefix6yb5fz') format('embedded-opentype'),
+		url('fonts/takeoff.ttf?6yb5fz') format('truetype'),
+		url('fonts/takeoff.woff?6yb5fz') format('woff'),
+		url('fonts/takeoff.svg?6yb5fz#takeoff') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'takeoff';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-color-picker:before {
+	content: "\e608";
+}
+.icon-line:before {
+	content: "\e600";
+}
+.icon-area:before {
+	content: "\e601";
+}
+.icon-drop:before {
+	content: "\e063";
+}
+.icon-group:before {
+	content: "\e102";
+}
+.icon-number:before {
+	content: "\e605";
+}
+.icon-crop_free:before {
+	content: "\e157";
+}
+.icon-rotate-left:before {
+	content: "\e1aa";
+}
+.icon-rotate-right:before {
+	content: "\e1ab";
+}
+.icon-zoom-fit:before {
+	content: "\e270";
+}
+.icon-zoom-window:before {
+	content: "\e2eb";
+}
+.icon-check:before {
+	content: "\e602";
+}
+.icon-zoom-out:before {
+	content: "\e603";
+}
+.icon-zoom-in:before {
+	content: "\e604";
+}
+.icon-pointer:before {
+	content: "\e606";
+}
