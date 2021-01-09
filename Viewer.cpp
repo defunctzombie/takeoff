@@ -9,7 +9,7 @@
 #include <QStyleOptionFrame>
 #include <QKeyEvent>
 
-#include <poppler/qt4/poppler-qt4.h>
+#include <poppler/qt5/poppler-qt5.h>
 
 #include "Page.hpp"
 
@@ -18,8 +18,7 @@
 #include "shapes/Count.hpp"
 #include "shapes/Check.hpp"
 
-Viewer::Viewer(QWidget* parent) :
-    QWidget(parent), _thread(this)
+Viewer::Viewer(QWidget *parent) : QWidget(parent), _thread(this)
 {
     _page = 0;
     _shape = 0;
@@ -28,19 +27,19 @@ Viewer::Viewer(QWidget* parent) :
     _removalNodeIndex = 0;
     _removalShape = 0;
     _dragPoint = 0;
-	_mouseDown = false;
-    
+    _mouseDown = false;
+
     this->setBackgroundRole(QPalette::Mid);
     this->setCursor(Qt::CrossCursor);
     this->setMouseTracking(true);
     this->setFocusPolicy(Qt::ClickFocus);
-    
+
     _popupMenu = new QMenu(this);
     _actionRemoveNode = _popupMenu->addAction("remove node");
     _actionRemoveShape = _popupMenu->addAction("remove shape");
     _popupMenu->addSeparator();
     _actionChangeColor = _popupMenu->addAction("change color");
-    
+
     connect(_actionRemoveNode, SIGNAL(triggered(bool)), SLOT(removeNode()));
     connect(_actionRemoveShape, SIGNAL(triggered(bool)), SLOT(removeShape()));
     connect(_actionChangeColor, SIGNAL(triggered(bool)), SLOT(changeColor()));
@@ -62,25 +61,25 @@ void Viewer::reset()
     _dragPoint = 0;
     _pageImage = QImage();
     _group = false;
-    
+
     update();
 }
 
-void Viewer::setPage(Page* page)
+void Viewer::setPage(Page *page)
 {
     _page = page;
     if (_page == 0)
         return;
-    
-	_pageImage = QImage();
-	zoomFit();
+
+    _pageImage = QImage();
+    zoomFit();
 }
 
 void Viewer::rotateCW()
 {
     if (!_page)
         return;
-    
+
     _page->rotateCW();
     _thread.start();
 }
@@ -89,75 +88,75 @@ void Viewer::rotateCCW()
 {
     if (!_page)
         return;
-    
+
     _page->rotateCCW();
     _thread.start();
 }
 
 #include <QDebug>
 
-void Viewer::paintEvent(QPaintEvent* pe)
+void Viewer::paintEvent(QPaintEvent *pe)
 {
     if (!_page)
     {
         QPainter p(this);
         return;
     }
-    
+
     QPainter p(this);
-	p.setRenderHint(QPainter::Antialiasing);
-    
+    p.setRenderHint(QPainter::Antialiasing);
+
     QSizeF pageSize = _page->ppage->pageSizeF();
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
-    
+
     // if the page has been rotated off angle, need to adjust size
-    if (_page->rotation == Poppler::Page::Rotate90 || 
+    if (_page->rotation == Poppler::Page::Rotate90 ||
         _page->rotation == Poppler::Page::Rotate270)
         imageSize.transpose();
-    
-	_imageMutex.lock();
-    
+
+    _imageMutex.lock();
+
     const QRect imageRect(_offset, imageSize.toSize());
     const QRect drawRect = rect().intersected(imageRect);
-    
+
     QPoint source = drawRect.topLeft() - imageRect.topLeft();
-    
-    const float ratio = _pageImage.width()/imageSize.width();
+
+    const float ratio = _pageImage.width() / imageSize.width();
     const QRect sourceRect(source * ratio, drawRect.size() * ratio);
-    
+
     p.drawImage(drawRect, _pageImage, sourceRect);
-    
+
     _imageMutex.unlock();
-    
+
     p.save();
     p.translate(_offset);
-    
-    Q_FOREACH(const Shape* shape, _page->shapes)
+
+    Q_FOREACH (const Shape *shape, _page->shapes)
     {
         shape->draw(p, _page->dpi);
     }
-    
+
     p.restore();
     p.setClipping(false);
-	
-	if (_tool == ZoomTool && _mouseDown)
-	{
-		QPen pen;
-		pen.setWidth(2);
-		pen.setColor(Qt::green);
-		
-		QColor c(Qt::green);
-		c.setAlphaF(.3);
-		
-		p.setPen(pen);
-		QRect zoomRect = QRect(_dragStart, _mousePoint);
-		p.drawRect(zoomRect);
-		
-		p.fillRect(zoomRect, c);
-	}
+
+    if (_tool == ZoomTool && _mouseDown)
+    {
+        QPen pen;
+        pen.setWidth(2);
+        pen.setColor(Qt::green);
+
+        QColor c(Qt::green);
+        c.setAlphaF(.3);
+
+        p.setPen(pen);
+        QRect zoomRect = QRect(_dragStart, _mousePoint);
+        p.drawRect(zoomRect);
+
+        p.fillRect(zoomRect, c);
+    }
 }
 
-void Viewer::mouseMoveEvent(QMouseEvent* me)
+void Viewer::mouseMoveEvent(QMouseEvent *me)
 {
     if (_panning)
     {
@@ -169,29 +168,29 @@ void Viewer::mouseMoveEvent(QMouseEvent* me)
     {
         //update the location
         QPoint d = me->pos() - _offset;
-        _dragPoint->setX(d.x()/(float)_page->dpi);
-        _dragPoint->setY(d.y()/(float)_page->dpi);
+        _dragPoint->setX(d.x() / (float)_page->dpi);
+        _dragPoint->setY(d.y() / (float)_page->dpi);
         repaint();
     }
     else if (_shape && !_shape->isFinished())
     {
         QPoint d = me->pos() - _offset;
-        QPointF p(d.x()/(float)_page->dpi, d.y()/(float)_page->dpi);
+        QPointF p(d.x() / (float)_page->dpi, d.y() / (float)_page->dpi);
         _shape->setMousePoint(p);
         repaint();
     }
-	else if (_tool == ZoomTool && _mouseDown)
-	{
-		_mousePoint = me->pos();
-		repaint();
-	}
+    else if (_tool == ZoomTool && _mouseDown)
+    {
+        _mousePoint = me->pos();
+        repaint();
+    }
 }
 
-void Viewer::mousePressEvent(QMouseEvent* me)
+void Viewer::mousePressEvent(QMouseEvent *me)
 {
     if (!_page)
         return;
-    
+
     if (me->button() == Qt::MidButton)
     {
         _dragStart = me->pos();
@@ -201,44 +200,44 @@ void Viewer::mousePressEvent(QMouseEvent* me)
     {
         if (_tool == SelectTool)
         {
-			_shape = 0;
-            Q_FOREACH(Shape* shape, _selected)
+            _shape = 0;
+            Q_FOREACH (Shape *shape, _selected)
             {
                 shape->setSelected(false);
             }
-            
+
             if (!(me->modifiers() & Qt::ShiftModifier))
             {
                 _selected.clear();
             }
-            
-            QPointF* drag = 0;
-            Q_FOREACH(Shape* shape, _page->shapes)
+
+            QPointF *drag = 0;
+            Q_FOREACH (Shape *shape, _page->shapes)
             {
                 shape->setSelected(false);
-                drag = shape->selected(me->pos()-_offset, _page->dpi);
+                drag = shape->selected(me->pos() - _offset, _page->dpi);
                 if (drag)
                 {
-					_shape = shape;
+                    _shape = shape;
                     shape->setSelected(true);
                     _selected.append(shape);
                     _dragPoint = drag;
                     break;
                 }
             }
-            
+
             if (!drag)
             {
                 _dragStart = me->pos();
                 _panning = true;
             }
-            
+
             recalcInfo();
             repaint();
         }
         else if (_tool == AreaTool || _tool == LineTool || _tool == CountTool || _tool == CheckTool)
         {
-            Shape* newShape = 0;
+            Shape *newShape = 0;
             if (_shape == 0 || _shape->isFinished())
             {
                 if (_tool == AreaTool)
@@ -249,13 +248,14 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                     newShape = new Line();
                 else if (_tool == CheckTool)
                     newShape = new Check();
-                else; // TODO should have better way to handle this
+                else
+                    ; // TODO should have better way to handle this
                 // this happens if I forget to add new tool handling here.
-                
+
                 newShape->color(_color);
                 newShape->setSelected(true);
             }
-            
+
             if (newShape)
             {
                 if (_shape && _group)
@@ -264,48 +264,48 @@ void Viewer::mousePressEvent(QMouseEvent* me)
                 }
                 else
                 {
-                    Q_FOREACH(Shape* shape, _selected)
+                    Q_FOREACH (Shape *shape, _selected)
                     {
                         shape->setSelected(false);
                     }
-                    
+
                     _selected.clear();
                     _selected.append(newShape);
                     _page->shapes.append(newShape);
                 }
-                
+
                 _shape = newShape;
             }
-            
+
             QPoint d = me->pos() - _offset;
-            QPointF p(d.x()/(float)_page->dpi, d.y()/(float)_page->dpi);
+            QPointF p(d.x() / (float)_page->dpi, d.y() / (float)_page->dpi);
             _shape->addPoint(p);
-            
+
             recalcInfo();
             repaint();
         }
-		else if (_tool == ZoomTool)
-		{
-			_mouseDown = true;
-			_dragStart = me->pos();
-		}
+        else if (_tool == ZoomTool)
+        {
+            _mouseDown = true;
+            _dragStart = me->pos();
+        }
     }
 }
 
-void Viewer::mouseReleaseEvent(QMouseEvent* me)
+void Viewer::mouseReleaseEvent(QMouseEvent *me)
 {
     _dragPoint = 0;
-    
+
     if (!_page)
         return;
-    
+
     _panning = false;
-     
+
     if (me->button() == Qt::RightButton && _tool == SelectTool)
     {
-        Q_FOREACH(Shape* shape, _page->shapes)
+        Q_FOREACH (Shape *shape, _page->shapes)
         {
-            QPointF* drag = shape->selected(me->pos()-_offset, _page->dpi);
+            QPointF *drag = shape->selected(me->pos() - _offset, _page->dpi);
             if (drag)
             {
                 //_removalNodeIndex = i;
@@ -319,31 +319,34 @@ void Viewer::mouseReleaseEvent(QMouseEvent* me)
             }
         }
     }
-	else if (_tool == ZoomTool && _mouseDown)
-	{
-		QPoint delta = _mousePoint - _dragStart;
-		int dx = qAbs(delta.x());
-		int dy = qAbs(delta.y());
-		_page->dpi *= _pageImage.width()/dx;
-		
-		QPoint loc = _dragStart - _offset;
-		_offset -= loc * _pageImage.width()/dx;
-		
+    else if (_tool == ZoomTool && _mouseDown)
+    {
+        QPoint delta = _mousePoint - _dragStart;
+        int dx = qAbs(delta.x());
+        int dy = qAbs(delta.y());
+        _page->dpi *= _pageImage.width() / dx;
+
+        QPoint loc = _dragStart - _offset;
+        _offset -= loc * _pageImage.width() / dx;
+
         _mouseDown = false;
-		repaint();
-		regenImage();
-	}
-	
-	recalcInfo();
+        repaint();
+        regenImage();
+    }
+
+    recalcInfo();
 }
 
-void Viewer::mouseDoubleClickEvent(QMouseEvent* me)
+void Viewer::mouseDoubleClickEvent(QMouseEvent *me)
 {
-    _shape->setFinished(true);
+    if (_shape)
+    {
+        _shape->setFinished(true);
+    }
     repaint();
 }
 
-void Viewer::keyReleaseEvent(QKeyEvent* ke)
+void Viewer::keyReleaseEvent(QKeyEvent *ke)
 {
     if (Qt::Key_Escape == ke->key())
     {
@@ -352,7 +355,7 @@ void Viewer::keyReleaseEvent(QKeyEvent* ke)
     }
 }
 
-void Viewer::wheelEvent(QWheelEvent* we)
+void Viewer::wheelEvent(QWheelEvent *we)
 {
 }
 
@@ -360,29 +363,29 @@ void Viewer::zoomFit()
 {
     if (!_page || !_page->ppage)
         return;
-    
+
     //setup the initial page size
     QSizeF pageSize = _page->ppage->pageSizeF(); //in points (1/72th of an inch)
-    int dpix = width()/(pageSize.width()/72);
-    int dpiy = height()/(pageSize.height()/72);
-    
-    if (_page->rotation == Poppler::Page::Rotate90 || 
+    int dpix = width() / (pageSize.width() / 72);
+    int dpiy = height() / (pageSize.height() / 72);
+
+    if (_page->rotation == Poppler::Page::Rotate90 ||
         _page->rotation == Poppler::Page::Rotate270)
     {
-        dpix = width()/(pageSize.height()/72);
-        dpiy = height()/(pageSize.width()/72);
+        dpix = width() / (pageSize.height() / 72);
+        dpiy = height() / (pageSize.width() / 72);
     }
-    
+
     _page->dpi = qMin(dpix, dpiy);
     QSizeF imageSize = pageSize / 72.0 * _page->dpi;
-    
-    if (_page->rotation == Poppler::Page::Rotate90 || 
+
+    if (_page->rotation == Poppler::Page::Rotate90 ||
         _page->rotation == Poppler::Page::Rotate270)
         imageSize.transpose();
-    
-    _offset = QPoint((width() - imageSize.width())/2, 
-                     (height() - imageSize.height())/2);
-	
+
+    _offset = QPoint((width() - imageSize.width()) / 2,
+                     (height() - imageSize.height()) / 2);
+
     repaint();
     regenImage();
 }
@@ -391,13 +394,13 @@ void Viewer::zoomIn()
 {
     if (!_page)
         return;
-    
-	const int oldDpi = _page->dpi;
+
+    const int oldDpi = _page->dpi;
     _page->dpi += int(_page->dpi * .5);
-	
+
     if (_offset.x() < 0 || _offset.y() < 0)
-        _offset *= _page->dpi/(float)oldDpi;
-	
+        _offset *= _page->dpi / (float)oldDpi;
+
     repaint();
     regenImage();
 }
@@ -406,13 +409,13 @@ void Viewer::zoomOut()
 {
     if (!_page)
         return;
-    
-	const int oldDpi = _page->dpi;
+
+    const int oldDpi = _page->dpi;
     _page->dpi -= int(_page->dpi * .5);
-	
+
     if (_offset.x() < 0 || _offset.y() < 0)
-        _offset *= _page->dpi/(float)oldDpi;
-	
+        _offset *= _page->dpi / (float)oldDpi;
+
     repaint();
     regenImage();
 }
@@ -421,25 +424,25 @@ void Viewer::setScale(float scale)
 {
     if (!_page)
         return;
-    
+
     _page->scale = scale;
-    
+
     recalcInfo();
     update();
 }
 
 void Viewer::regenImage()
 {
-	_thread.start();
+    _thread.start();
 }
 
 void Viewer::recalcInfo()
 {
     const float scale = _page->scale;
-    
+
     float area = 0;
     float length = 0;
-    Q_FOREACH(const Shape* shape, _selected)
+    Q_FOREACH (const Shape *shape, _selected)
     {
         area += scale * scale * shape->area();
         length += scale * shape->length();
@@ -454,22 +457,22 @@ void Viewer::changeTool(Viewer::Tool t)
         _shape->setFinished(true);
         repaint();
     }
-    
+
     //_shape = 0;
     _tool = t;
 }
 
 void Viewer::removeNode()
 {
-    //TODO
-    #if 0
+//TODO
+#if 0
     if (_removalShape)
     {
         _removalShape->remove(_removalNodeIndex);
         _removalShape = 0;
         repaint();
     }
-    #endif
+#endif
 }
 
 void Viewer::removeShape()
@@ -477,17 +480,17 @@ void Viewer::removeShape()
     if (_removalShape && _page)
     {
         _selected.clear();
-        
+
         if (_shape == _removalShape)
             _shape = 0;
-        
+
         const int index = _page->shapes.indexOf(_removalShape);
-        
+
         if (index >= 0)
             _page->shapes.remove(index);
-        
+
         delete _removalShape;
-        _removalShape = 0;        
+        _removalShape = 0;
         repaint();
     }
 }
@@ -500,12 +503,12 @@ void Viewer::group(bool b)
 void Viewer::changeColor(QColor c)
 {
     _color = c;
-	
-	if (_shape && !_shape->isFinished())
-	{
-		_shape->color(_color);
-		repaint();
-	}
+
+    if (_shape && !_shape->isFinished())
+    {
+        _shape->color(_color);
+        repaint();
+    }
 }
 
 void Viewer::changeColor()
@@ -513,12 +516,12 @@ void Viewer::changeColor()
     if (_removalShape)
     {
         QColor newColor = QColorDialog::getColor(_removalShape->color());
-        
+
         if (newColor.isValid())
         {
             _removalShape->color(newColor);
         }
-        
+
         _removalShape = 0;
         repaint();
     }
@@ -526,22 +529,22 @@ void Viewer::changeColor()
 
 void Viewer::ImageThread::run()
 {
-    Page* page = _viewer->_page;
-	const int dpi = page->dpi;
-	
-	if (dpi > 250)
-		return;
-	
+    Page *page = _viewer->_page;
+    const int dpi = page->dpi;
+
+    if (dpi > 250)
+        return;
+
     QImage newImage = page->ppage->renderToImage(dpi, dpi,
                                                  -1, -1, -1, -1, page->rotation);
     if (newImage.isNull())
         return;
-	
+
     _viewer->_imageMutex.lock();
-    
+
     //shallow copy
     _viewer->_pageImage = QImage(newImage);
     _viewer->_imageMutex.unlock();
-    
+
     _viewer->update(); //update not repaint to use queue
 }
